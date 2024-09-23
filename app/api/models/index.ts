@@ -1,6 +1,5 @@
-
-import { Sequelize } from 'sequelize';
-import config from '../config/config';
+import { Sequelize } from "sequelize";
+import config from "../config/config";
 
 interface DBConfig {
   database: string;
@@ -23,4 +22,3 @@ const sequelize = new Sequelize(
 );
 
 export default sequelize;
-

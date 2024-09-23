@@ -1,62 +1,61 @@
-version: '3'
+version: "3"
 
 services:
-    # ==========================================================================
-    # ---------------------------------- API -----------------------------------
-    # ==========================================================================
-    BEALYSQL:
-      restart     : unless-stopped
-      tty         : true
-      image       : mysql:8.0
-      container_name: BEALYSQL
-      networks    : [BealyBackMysql_network]
-      ports       : ["4002:3306"]
-      environment :
-        - MYSQL_ROOT_PASSWORD=!pass
-        - MYSQL_DATABASE=BEALY_TT_DB
-      volumes:
-        - ./BEALYDB:/var/lib/mysql
+  # ==========================================================================
+  # ---------------------------------- API -----------------------------------
+  # ==========================================================================
+  BEALYSQL:
+    restart: unless-stopped
+    tty: true
+    image: mysql:8.0
+    container_name: BEALYSQL
+    networks: [BealyBackMysql_network]
+    ports: ["4002:3306"]
+    environment:
+      - MYSQL_ROOT_PASSWORD=!pass
+      - MYSQL_DATABASE=BEALY_TT_DB
+    volumes:
+      - ./BEALYDB:/var/lib/mysql
 
-    # ==========================================================================
-    # ---------------------------------- API -----------------------------------
-    # ==========================================================================
-    BEALYBACK:
-      tty: true
-      restart     : unless-stopped
-      image       : node:20
-      container_name: BEALYBACK
-      depends_on  : [BEALYSQL, BEALYFRONT]
-      working_dir : /home/node/app/
-      volumes     : [./app/api/:/home/node/app/]
-      command     : sh -c "sleep 20 && npm i && npm run dev" # Don't look at me, I'm a dirty hack
-      ports       : ["4001:8080"]
-      networks    :
-        - BealyBackMongo_network
-        - BealyBackMysql_network
-        - BealyBackFrontBridge_network
-      environment:
-        - DB_USERNAME=root
-        - DB_PASSWORD=!pass
-        - DB_NAME=BEALY_TT_DB
-        - DB_HOST=BEALYSQL
-        - DB_DIALECT=mysql
+  # ==========================================================================
+  # ---------------------------------- API -----------------------------------
+  # ==========================================================================
+  BEALYBACK:
+    tty: true
+    restart: unless-stopped
+    image: node:20
+    container_name: BEALYBACK
+    depends_on: [BEALYSQL, BEALYFRONT]
+    working_dir: /home/node/app/
+    volumes: [./app/api/:/home/node/app/]
+    command: sh -c "sleep 20 && npm i && npm run dev" # Don't look at me, I'm a dirty hack
+    ports: ["4001:8080"]
+    networks:
+      - BealyBackMongo_network
+      - BealyBackMysql_network
+      - BealyBackFrontBridge_network
+    environment:
+      - DB_USERNAME=root
+      - DB_PASSWORD=!pass
+      - DB_NAME=BEALY_TT_DB
+      - DB_HOST=BEALYSQL
+      - DB_DIALECT=mysql
+      - JWT_SECRET=secret
 
-
-    # ==========================================================================
-    # --------------------------------- FRONT ----------------------------------
-    # ==========================================================================
-    BEALYFRONT:
-      tty: true
-      image       : node:20
-      restart     : unless-stopped
-      container_name: BEALYFRONT
-      networks    : [BealyBackFrontBridge_network]
-      depends_on  : [BEALYSQL]
-      working_dir : /home/node/app/
-      volumes     : [./app/front/:/home/node/app/ ]
-      command     : sh -c "npm i && npm run dev"
-      ports       : ["4000:3000"]
-
+  # ==========================================================================
+  # --------------------------------- FRONT ----------------------------------
+  # ==========================================================================
+  BEALYFRONT:
+    tty: true
+    image: node:20
+    restart: unless-stopped
+    container_name: BEALYFRONT
+    networks: [BealyBackFrontBridge_network]
+    depends_on: [BEALYSQL]
+    working_dir: /home/node/app/
+    volumes: [./app/front/:/home/node/app/]
+    command: sh -c "npm i && npm run dev"
+    ports: ["4000:3000"]
 
 # ==============================================================================
 # ---------------------------------- NETWORKS ----------------------------------
@@ -68,5 +67,3 @@ networks:
     driver: bridge
   BealyBackFrontBridge_network:
     driver: bridge
-
-

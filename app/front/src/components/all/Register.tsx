@@ -15,9 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { registrationSchema } from "@/schemas/registrationSchema";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { BACKEND_URL } from "@/../utils";
-import axios from "axios";
+import api from "../../services/api";
 
 export default function RegisterForm() {
   const form = useForm<z.infer<typeof registrationSchema>>({
@@ -34,10 +32,9 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: z.infer<typeof registrationSchema>) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/auth/register`, data);
+      const response = await api.post(`/auth/register`, data);
 
       localStorage.setItem("id", response.data.id);
-      localStorage.setItem("token", response.data.token);
 
       setMessage("User registered successfully!");
       window.location.href = "/main";

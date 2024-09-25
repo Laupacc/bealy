@@ -8,8 +8,14 @@ import User from "../models/User";
 
 const JWT = process.env.JWT_SECRET;
 
-const authenticateJWT = (req: any, res: Response, next: NextFunction) => {
+// Middleware to authenticate JWT token
+export const authenticateJWT = (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
   const token = req.headers.authorization?.split(" ")[1];
+
   if (!token) {
     console.log("No token provided");
     return res.sendStatus(401); // Unauthorized
@@ -24,6 +30,53 @@ const authenticateJWT = (req: any, res: Response, next: NextFunction) => {
     console.log("User authenticated:", user);
     next();
   });
+};
+
+// Middleware to refresh JWT token
+export const refreshToken = (req: any, res: Response, next: NextFunction) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT);
+    const currentTime = Math.floor(Date.now() / 1000);
+    const timeToExpire = decoded.exp - currentTime;
+
+    // Check if the token is about to expire in the next 10 minutes
+    if (timeToExpire < 600) {
+      const newToken = jwt.sign({ email: decoded.email }, JWT, {
+        expiresIn: "1h",
+      });
+
+      // Send the new token in both the response headers and the body
+      res.setHeader("Authorization", `Bearer ${newToken}`);
+      res.locals.newToken = newToken; // Store it temporarily to send in the response later
+    }
+
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+// Middleware to append the refreshed token to the response
+export const appendNewToken = (req: any, res: Response, next: NextFunction) => {
+  // Intercept the response after processing is done
+  const originalJson = res.json;
+
+  res.json = function (data) {
+    // If there's a new token in res.locals, add it to the response body
+    if (res.locals.newToken) {
+      data.token = res.locals.newToken;
+    }
+
+    return originalJson.call(this, data);
+  };
+
+  next();
 };
 
 // Register a new user
@@ -44,13 +97,20 @@ router.post("/register", async (req: Request, res: Response) => {
 
     console.log("User created successfully:", user);
 
+    res.cookie("token", token, {
+      httpOnly: false, // Prevents access to the cookie via JavaScript
+      secure: false, // Should be 'false' for localhost development
+      sameSite: "lax", // 'lax' for localhost
+      path: "/", // Make the cookie available across the app
+    });
+
     // Send the response back to the client
     res.status(201).json({
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      token: user.token,
+      // token: user.token,
     });
   } catch (error) {
     console.error("Error during registration process:", error);
@@ -74,13 +134,23 @@ router.post("/login", async (req: Request, res: Response) => {
     }
 
     const token = jwt.sign({ email }, JWT, { expiresIn: "1h" });
+    console.log("Generated token:", token);
+
+    res.cookie("token", token, {
+      httpOnly: false, // Ensures the cookie is accessible via JavaScript
+      secure: false, // Should be 'false' for localhost development
+      sameSite: "lax", // 'lax' for localhost
+      path: "/", // Make the cookie available across the app
+    });
+
+    console.log("Cookie set successfully");
 
     res.status(200).json({
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      token: token,
+      // token: token,
     });
   } catch (error) {
     res.status(500).json({ error });
@@ -88,31 +158,41 @@ router.post("/login", async (req: Request, res: Response) => {
 });
 
 // Get a user's info by ID
-router.get("/:userId/userInfo", authenticateJWT, async (req: any, res: any) => {
-  try {
-    const user = await User.findOne({ where: { id: req.params.userId } });
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
-    res.status(200).json({
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      age: user.age,
-      description: user.description,
-      profilePicture: user.profilePicture,
-      showProfile: user.showProfile,
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve user info." });
-  }
-});
-
-// Update a user's info by ID
-router.post(
+router.get(
   "/:userId/userInfo",
   authenticateJWT,
+  refreshToken,
+  appendNewToken,
+  async (req: any, res: any) => {
+    try {
+      const user = await User.findOne({ where: { id: req.params.userId } });
+      if (!user) {
+        return res.status(404).json({ error: "User not found." });
+      }
+      const responseData = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        age: user.age,
+        description: user.description,
+        profilePicture: user.profilePicture,
+        showProfile: user.showProfile,
+      };
+
+      res.status(200).json(responseData);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to retrieve user info." });
+    }
+  }
+);
+
+// Update a user's info by ID
+router.put(
+  "/:userId/userInfo",
+  authenticateJWT,
+  refreshToken,
+  appendNewToken,
   async (req: any, res: any) => {
     try {
       const user = await User.findOne({ where: { id: req.params.userId } });
@@ -140,12 +220,15 @@ router.post(
 router.get(
   "/allUsersPublicProfiles",
   authenticateJWT,
+  refreshToken,
+  appendNewToken,
   async (req: any, res: any) => {
     try {
       const users = await User.findAll({
         where: { showProfile: true },
       });
       res.status(200).json(users);
+      console.log("Retrieved users:", users);
     } catch (error) {
       res.status(500).json({ error: "Failed to retrieve users." });
     }
@@ -156,6 +239,8 @@ router.get(
 router.get(
   "publicProfile/:userId",
   authenticateJWT,
+  refreshToken,
+  appendNewToken,
   async (req: any, res: any) => {
     try {
       const user = await User.findOne({ where: { id: req.params.userId } });

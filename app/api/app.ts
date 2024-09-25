@@ -4,9 +4,10 @@ import sequelize from "./models";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import authRouter from "./routes/auth";
+import { authenticateJWT, refreshToken, appendNewToken } from "./routes/auth";
 import favouritesRouter from "./routes/favorites";
 import hackernewsRouter from "./routes/hackernews";
-import "./models/associations"; 
+import "./models/associations";
 
 dotenv.config();
 
@@ -15,10 +16,28 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
 const cors = require("cors");
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:4000",
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:4001",
+];
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 app.use("/auth", authRouter);
-app.use("/favorites", favouritesRouter);
+app.use(
+  "/favorites",
+  refreshToken,
+  authenticateJWT,
+  appendNewToken,
+  favouritesRouter
+);
 app.use("/hackernews", hackernewsRouter);
 
 const createDatabase = async (): Promise<void> => {

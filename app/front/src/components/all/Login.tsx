@@ -15,8 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { loginSchema } from "@/schemas/loginSchema";
 import React, { useState, useEffect } from "react";
-import { BACKEND_URL } from "@/../utils";
-import axios from "axios";
+import api from "../../services/api";
 
 export default function LoginForm() {
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -31,10 +30,11 @@ export default function LoginForm() {
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/auth/login`, data);
+      const response = await api.post(`/auth/login`, data, {
+        withCredentials: true,
+      });
 
       localStorage.setItem("id", response.data.id);
-      localStorage.setItem("token", response.data.token);
 
       setMessage("User logged in successfully!");
       window.location.href = "/main";

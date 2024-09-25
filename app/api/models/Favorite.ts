@@ -28,17 +28,26 @@ Favorite.init(
     userId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
+      // Adding foreign key constraint if you have Users table
+      references: {
+        model: 'Users', // Name of the referenced table
+        key: 'id',      // Key in the referenced table
+      },
+      onDelete: 'CASCADE', // Ensure related favorites are removed when a user is deleted
     },
     storyId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
+      // Adding unique constraint to prevent duplicate entries
+      unique: 'user_story_unique', // Composite unique constraint
     },
   },
   {
     sequelize,
     modelName: "Favorite",
-    timestamps: true, 
+    timestamps: true,
   }
 );
+
 
 export default Favorite;

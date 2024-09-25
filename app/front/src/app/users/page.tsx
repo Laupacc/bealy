@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import MenuBar from "../../components/all/MenuBar";
+import Users from "../../components/all/Users";
 
 export default function UsersPage() {
   return (
     <div>
-      <h1>Users</h1>
+      <MenuBar />
+      <Users />
     </div>
   );
 }

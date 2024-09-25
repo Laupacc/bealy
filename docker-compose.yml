@@ -41,6 +41,7 @@ services:
       - DB_HOST=BEALYSQL
       - DB_DIALECT=mysql
       - JWT_SECRET=secret
+      - NODE_ENV=development
 
   # ==========================================================================
   # --------------------------------- FRONT ----------------------------------

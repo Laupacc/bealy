@@ -34,7 +34,7 @@ export const authenticateJWT = (
 
 // Middleware to refresh JWT token
 export const refreshToken = (req: any, res: Response, next: NextFunction) => {
-  const token = req.headers["authorization"]?.split(" ")[1];
+  const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
   }
@@ -44,25 +44,32 @@ export const refreshToken = (req: any, res: Response, next: NextFunction) => {
     const currentTime = Math.floor(Date.now() / 1000);
     const timeToExpire = decoded.exp - currentTime;
 
-    // Check if the token is about to expire in the next 10 minutes
+    console.log("Time to expire (seconds):", timeToExpire);
+
+    // Check if the token is about to expire in the next 10 minutes (600 seconds)
     if (timeToExpire < 600) {
+      console.log("Token is about to expire, refreshing...");
       const newToken = jwt.sign({ email: decoded.email }, JWT, {
         expiresIn: "1h",
       });
 
-      // Send the new token in both the response headers and the body
-      res.setHeader("Authorization", `Bearer ${newToken}`);
-      res.locals.newToken = newToken; // Store it temporarily to send in the response later
+      console.log("Generated new token");
+
+      res.locals.newToken = newToken; // Store the new token temporarily
+      res.setHeader("Authorization", `Bearer ${res.locals.newToken}`);
+
+      console.log("New token added to response in RefreshToken middleware");
     }
 
     req.user = decoded;
     next();
   } catch (err) {
+    console.error("Token verification failed in RefreshToken middleware:", err);
     return res.status(401).json({ message: "Invalid token" });
   }
 };
 
-// Middleware to append the refreshed token to the response
+// // Middleware to append the refreshed token to the response for Cookies
 export const appendNewToken = (req: any, res: Response, next: NextFunction) => {
   // Intercept the response after processing is done
   const originalJson = res.json;
@@ -71,6 +78,8 @@ export const appendNewToken = (req: any, res: Response, next: NextFunction) => {
     // If there's a new token in res.locals, add it to the response body
     if (res.locals.newToken) {
       data.token = res.locals.newToken;
+      res.setHeader("Authorization", `Bearer ${res.locals.newToken}`);
+      console.log("New token added to response in AppendNewToken middleware");
     }
 
     return originalJson.call(this, data);
@@ -228,7 +237,7 @@ router.get(
         where: { showProfile: true },
       });
       res.status(200).json(users);
-      console.log("Retrieved users:", users);
+      console.log("Retrieved users");
     } catch (error) {
       res.status(500).json({ error: "Failed to retrieve users." });
     }

@@ -35,8 +35,7 @@ export default function RegisterForm() {
       const response = await api.post(`/auth/register`, data);
 
       localStorage.setItem("id", response.data.id);
-
-      setMessage("User registered successfully!");
+      alert("Registered successfully!");
       window.location.href = "/main";
       console.log("User created:", response.data);
     } catch (error) {
@@ -53,57 +52,67 @@ export default function RegisterForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="firstName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>First name</FormLabel>
-              <FormControl>
-                <Input placeholder="First name" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="lastName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Last name</FormLabel>
-              <FormControl>
-                <Input placeholder="Last name" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Email" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="Password" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-        {message && <p className="text-sm text-red-500">{message}</p>}{" "}
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4 items-center justify-between bg-white p-8 rounded-lg shadow-md w-full h-full m-6"
+      >
+        <p className="text-xl md:text-2xl font-bold text-center">
+          Register to get started
+        </p>
+        <div>
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem className="my-4">
+                <FormLabel className="text-md">First name</FormLabel>
+                <FormControl>
+                  <Input placeholder="First name" {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem className="my-4">
+                <FormLabel className="text-md">Last name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Last name" {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="my-4">
+                <FormLabel className="text-md">Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Email" {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="my-4">
+                <FormLabel className="text-md">Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="Password" {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+        <div>
+          <Button type="submit">Submit</Button>
+          {message && <p className="text-sm text-red-500">{message}</p>}
+        </div>
       </form>
     </Form>
   );

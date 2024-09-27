@@ -36,7 +36,6 @@ export default function LoginForm() {
 
       localStorage.setItem("id", response.data.id);
 
-      setMessage("User logged in successfully!");
       window.location.href = "/main";
       console.log("User logged in:", response.data);
     } catch (error) {
@@ -55,40 +54,43 @@ export default function LoginForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 items-center justify-between bg-white p-8 rounded-lg shadow-md w-full h-full m-6"
       >
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="Email" {...field} />
-              </FormControl>
-              <FormDescription>
-                Please enter your email address.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="Password" {...field} />
-              </FormControl>
-              <FormDescription>Please enter your password.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Login</Button>
-        {message && <p className="text-sm text-red-500">{message}</p>}{" "}
+        <p className="text-xl md:text-2xl font-bold text-center">
+          Or Log into your account
+        </p>
+        <div>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="my-4">
+                <FormLabel className="text-md">Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="Email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="my-4">
+                <FormLabel className="text-md">Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="Password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div>
+          <Button type="submit">Login</Button>
+          {message && <p className="text-sm text-red-500">{message}</p>}{" "}
+        </div>
       </form>
     </Form>
   );

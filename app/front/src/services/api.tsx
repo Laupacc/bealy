@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create an instance of Axios
 const api = axios.create({
-  baseURL: "http://localhost:4001", // Your API base URL
+  baseURL: "http://localhost:4001",
   withCredentials: true,
 });
 
@@ -30,12 +30,18 @@ api.interceptors.response.use(
     const newToken = response.headers["authorization"]?.split(" ")[1];
 
     if (newToken) {
+      // Check if new token was received
+      console.log("New token received");
+
       Cookies.set("token", newToken, {
-        secure: window.location.protocol === "https:", // true if using HTTPS
-        sameSite: window.location.protocol === "https:" ? "None" : "Lax", // 'None' for HTTPS, 'Lax' for HTTP
-        path: "/", // make it available on all paths
+        secure: window.location.protocol === "https:", // HTTPS security check
+        sameSite: window.location.protocol === "https:" ? "None" : "Lax",
+        path: "/",
       });
-      console.log("Token set in cookies:", Cookies.get("token"));
+
+      console.log("New token set in cookies");
+    } else {
+      console.log("No new token received in the response headers.");
     }
 
     return response;

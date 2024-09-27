@@ -22,7 +22,8 @@ router.post("/:userId/:storyId", async (req: any, res: any) => {
       where: { userId, storyId },
     });
     if (existingFavorite) {
-      return res.status(409).json({ error: "Story already in favorites." });
+      res.json("Favorite already exists.");
+      return;
     }
 
     // Create new favorite

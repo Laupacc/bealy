@@ -26,11 +26,13 @@ interface UserInfo {
 interface UserProfileProps {
   userInfo: UserInfo | null;
   setUserInfo: React.Dispatch<React.SetStateAction<UserInfo | null>>;
+  children?: React.ReactNode;
 }
 
 export default function UserProfile({
   userInfo,
   setUserInfo,
+  children,
 }: UserProfileProps) {
   const userID = localStorage.getItem("id");
 
@@ -112,7 +114,7 @@ export default function UserProfile({
 
   return (
     <Sheet>
-      <SheetTrigger>My Profile</SheetTrigger>
+      <SheetTrigger>{children}</SheetTrigger>
       <SheetContent className="flex flex-col h-full">
         <SheetHeader>
           <SheetTitle>My Information</SheetTitle>
@@ -133,7 +135,7 @@ export default function UserProfile({
           </Avatar>
         </div>
 
-        <div className="grid gap-8">
+        <div className="grid gap-6 mx-6">
           <div className="flex justify-between">
             <span className="font-bold">First Name:</span>
             {editProfile ? (
@@ -141,7 +143,7 @@ export default function UserProfile({
                 name="firstName"
                 value={formData.firstName || ""}
                 onChange={handleChange}
-                className="border rounded px-2 py-1"
+                className="border rounded px-2 py-1 w-1/2"
               />
             ) : (
               <span>{userInfo?.firstName}</span>
@@ -154,7 +156,7 @@ export default function UserProfile({
                 name="lastName"
                 value={formData.lastName || ""}
                 onChange={handleChange}
-                className="border rounded px-2 py-1"
+                className="border rounded px-2 py-1 w-1/2"
               />
             ) : (
               <span>{userInfo?.lastName}</span>
@@ -168,7 +170,7 @@ export default function UserProfile({
                 name="email"
                 value={formData.email || ""}
                 onChange={handleChange}
-                className="border rounded px-2 py-1"
+                className="border rounded px-2 py-1 w-1/2"
               />
             ) : (
               <span>{userInfo?.email}</span>
@@ -182,7 +184,7 @@ export default function UserProfile({
                 name="age"
                 value={formData.age || ""}
                 onChange={handleChange}
-                className="border rounded px-2 py-1"
+                className="border rounded px-2 py-1 w-1/2"
               >
                 <option value="">Select Age</option>
                 {[...Array(101)].map((_, index) => (
@@ -203,7 +205,7 @@ export default function UserProfile({
                 name="description"
                 value={formData.description || ""}
                 onChange={handleChange}
-                className="border rounded px-2 py-1"
+                className="border rounded px-2 py-1 w-1/2"
               />
             ) : (
               <span>{userInfo?.description}</span>

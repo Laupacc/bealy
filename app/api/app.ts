@@ -27,14 +27,15 @@ app.use(
     origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
+    exposedHeaders: ["Authorization"],
   })
 );
 
 app.use("/auth", authRouter);
 app.use(
   "/favorites",
-  refreshToken,
   authenticateJWT,
+  refreshToken,
   appendNewToken,
   favouritesRouter
 );

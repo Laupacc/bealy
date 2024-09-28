@@ -17,7 +17,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -58,7 +57,7 @@ export default function MenuBar() {
 
   const otherButtons = [
     { name: "My favorites", type: "favorites" },
-    { name: "All users", type: "users" },
+    { name: "Users", type: "users" },
   ];
 
   const handleMouseEnter = () => {
@@ -128,13 +127,13 @@ export default function MenuBar() {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <Image src={logoSrc} alt="logo" width={50} height={50} />
+            <Image src={logoSrc} priority alt="logo" width={50} height={50} />
           </button>
 
           {/* If small screen (phone) display dropdown menu */}
           <div className="flex items-center md:hidden">
             <DropdownMenu>
-              <DropdownMenuTrigger>
+              <DropdownMenuTrigger asChild>
                 <button className="text-lg text-white border border-white rounded-md px-3 py-1">
                   Menu
                 </button>

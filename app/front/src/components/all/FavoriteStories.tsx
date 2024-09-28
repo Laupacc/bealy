@@ -4,6 +4,7 @@ import Link from "next/link";
 import api from "../../services/api";
 import Image from "next/image";
 import Comments from "../all/Comments";
+import OtherUsersProfilesModal from "../all/OtherUsersProfilesModal";
 import {
   Card,
   CardDescription,
@@ -11,9 +12,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ProgressBar } from "react-loader-spinner";
 import { TbTriangleFilled } from "react-icons/tb";
 import moment from "moment";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { start } from "repl";
 
 export default function FavoriteStories() {
   const userID = localStorage.getItem("id");
@@ -21,7 +25,12 @@ export default function FavoriteStories() {
   const [showComments, setShowComments] = useState(false);
   const [currentStoryId, setCurrentStoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showAskSection, setShowAskSection] = useState(false);
+  const [currentAskStoryId, setCurrentAskStoryId] = useState<number | null>(
+    null
+  );
 
+  // Fetch user's favorites
   useEffect(() => {
     const fetchFavoritesStories = async () => {
       setLoading(true);
@@ -71,6 +80,12 @@ export default function FavoriteStories() {
   const closeComments = () => {
     setShowComments(false);
     setCurrentStoryId(null);
+  };
+
+  // Open Ask Section for story id
+  const openAskSection = (storyId: number) => {
+    setCurrentAskStoryId((prevId) => (prevId === storyId ? null : storyId));
+    setShowAskSection(!showAskSection);
   };
 
   return (
@@ -133,6 +148,34 @@ export default function FavoriteStories() {
                       </CardTitle>
                     </div>
                   )}
+
+                  {(story.title.startsWith("Ask HN:") ||
+                    story.title.startsWith("Tell HN:")) && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openAskSection(story.id)}
+                        className="ml-2 mt-2"
+                        style={{ alignSelf: "flex-start" }}
+                      >
+                        {currentAskStoryId === story.id ? (
+                          <>
+                            <ChevronRight className="mr-1" /> Hide Question
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="mr-1" /> Show Question
+                          </>
+                        )}
+                      </Button>
+                      {currentAskStoryId === story.id && (
+                        <CardDescription className="text-xs text-muted-foreground text-justify">
+                          {story.text}
+                        </CardDescription>
+                      )}
+                    </>
+                  )}
                 </CardHeader>
 
                 <Image
@@ -151,7 +194,8 @@ export default function FavoriteStories() {
                 {story.score} points <span className="pl-2">▶︎</span>
               </CardDescription>
               <CardDescription className="text-xs text-muted-foreground mr-2 break-words flex items-center">
-                by {story.by}{" "}
+                <OtherUsersProfilesModal username={story.by} />
+
                 {story.descendants !== undefined && (
                   <span className="pl-2">▶︎</span>
                 )}
@@ -171,15 +215,21 @@ export default function FavoriteStories() {
           </Card>
         ))}
 
-      {favorites.length === 0 && !loading && (
+      {favorites.length === 0 && !loading && !userID && (
         <div className="text-center text-2xl text-muted-foreground mt-10">
-          No saved stories yet
+          No favorite stories yet
+        </div>
+      )}
+
+      {favorites.length === 0 && !loading && userID && (
+        <div className="text-center text-2xl text-muted-foreground mt-10">
+          Log in to see your favorite stories
         </div>
       )}
 
       <Comments
         storyId={currentStoryId}
-        open={showComments}
+        open={showComments && currentStoryId !== null}
         onClose={closeComments}
       />
     </div>

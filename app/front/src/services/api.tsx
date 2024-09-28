@@ -40,10 +40,9 @@ api.interceptors.response.use(
       });
 
       console.log("New token set in cookies");
-    } else {
-      console.log("No new token received in the response headers.");
+    } else if (!newToken && (response.config.url ?? "").includes("/auth")) {
+      console.log("New token not received");
     }
-
     return response;
   },
   (error) => {

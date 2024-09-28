@@ -1,6 +1,5 @@
 import Register from "../../components/all/Register";
 import Login from "../../components/all/Login";
-import { useRouter } from "next/router";
 import Image from "next/image";
 
 export default function LoginPage() {
@@ -12,6 +11,8 @@ export default function LoginPage() {
         width={300}
         height={300}
         className="mx-auto mb-20"
+        style={{ width: "auto" }} 
+        priority
       />
       <div className="flex justify-center items-center">
         <Register />

@@ -3,12 +3,15 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import api from "../../services/api";
 import Comments from "../all/Comments";
+import SearchResults from "../all/SearchResults";
+import OtherUsersProfilesModal from "../all/OtherUsersProfilesModal";
 import Image from "next/image";
 import moment from "moment";
 import { useContext } from "react";
 import { TbTriangleFilled } from "react-icons/tb";
 import { StoryTypeContext } from "../../../src/context/StoryTypeContext";
 import { ProgressBar } from "react-loader-spinner";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import {
   Card,
   CardDescription,
@@ -16,6 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function FetchStories() {
   const userID = localStorage.getItem("id");
@@ -26,6 +30,14 @@ export default function FetchStories() {
   const [loading, setLoading] = useState(true);
   const [showComments, setShowComments] = useState(false);
   const [currentStoryId, setCurrentStoryId] = useState<number | null>(null);
+  const [showAskSection, setShowAskSection] = useState(false);
+  const [currentAskStoryId, setCurrentAskStoryId] = useState<number | null>(
+    null
+  );
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
 
   const storyTypeContext = useContext(StoryTypeContext);
   if (!storyTypeContext) {
@@ -50,7 +62,7 @@ export default function FetchStories() {
     fetchUserFavorites();
   }, [userID]);
 
-  // Fetch stories with pagination
+  // Fetch stories
   const fetchHackerNewsStories = async (isInitialLoad = false) => {
     setLoading(true);
     try {
@@ -61,18 +73,15 @@ export default function FetchStories() {
         },
       });
 
-      const formattedStories = response.data.map((story: any) => ({
-        ...story,
-        time: moment.unix(story.time).fromNow(),
-      }));
+      const stories = response.data;
 
       // If it's the initial load, replace the stories, otherwise append to the list
       setStories((prevStories) =>
-        isInitialLoad ? formattedStories : [...prevStories, ...formattedStories]
+        isInitialLoad ? stories : [...prevStories, ...stories]
       );
 
       setLoading(false);
-      console.log(`${storyType} stories:`, formattedStories);
+      console.log(`${storyType} stories:`, stories);
     } catch (error) {
       console.error(`Error fetching ${storyType} stories:`, error);
       setLoading(false);
@@ -174,13 +183,64 @@ export default function FetchStories() {
   };
 
   const openComments = (storyId: number) => {
-    setCurrentStoryId(storyId);
-    setShowComments(true);
+    if (currentStoryId !== storyId) {
+      setCurrentStoryId(storyId);
+      setShowComments(true);
+    }
   };
 
   const closeComments = () => {
     setShowComments(false);
     setCurrentStoryId(null);
+  };
+
+  // Search hackernews stories based on query using Algolia API
+  const searchHackerNewsStories = async (query: string) => {
+    try {
+      const response = await api.get(`/hackernews/search?q=${query}`);
+      setSearchResults(response.data);
+      setIsSearchModalOpen(true);
+      console.log("Searched Stories:", response.data);
+    } catch (error) {
+      console.error("Error searching HackerNews stories:", error);
+    }
+  };
+
+  // Sort stories by date, score or number of comments
+  const sortStories = (sortBy: string, order: string) => {
+    switch (sortBy) {
+      case "date":
+        setStories((prevStories) =>
+          [...prevStories].sort((a, b) => {
+            return order === "asc" ? a.time - b.time : b.time - a.time;
+          })
+        );
+        break;
+      case "score":
+        setStories((prevStories) =>
+          [...prevStories].sort((a, b) => {
+            return order === "asc" ? a.score - b.score : b.score - a.score;
+          })
+        );
+        break;
+      case "comments":
+        setStories((prevStories) =>
+          [...prevStories].sort((a, b) => {
+            return order === "asc"
+              ? a.descendants - b.descendants
+              : b.descendants - a.descendants;
+          })
+        );
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Open Ask Section for story id
+  const openAskSection = (storyId: number) => {
+    setCurrentAskStoryId((prevId) => (prevId === storyId ? null : storyId));
+    setShowAskSection(!showAskSection);
   };
 
   return (
@@ -202,6 +262,45 @@ export default function FetchStories() {
         />
       )}
 
+      <Card className="bg-chart-5 text-card-foreground shadow-xl mt-2 mb-4 w-[70%] mx-auto min-h-[4rem] h-auto sticky top-20 flex flex-row justify-around items-center">
+        <div className="flex justify-center items-center">
+          <CardDescription className="text-gray-700 text-xl mx-2">
+            Search HackerNews
+          </CardDescription>
+          <input
+            className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                searchHackerNewsStories(searchQuery);
+              }
+            }}
+          />
+        </div>
+        <div className="flex justify-center items-center">
+          <CardDescription className="text-gray-700 text-xl mx-2">
+            Sort by
+          </CardDescription>
+          <select
+            className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
+            onChange={(e) => {
+              const [criteria, order] = e.target.value.split("-");
+              sortStories(criteria, order);
+            }}
+          >
+            <option value="date-asc">Date (Ascending)</option>
+            <option value="date-desc">Date (Descending)</option>
+            <option value="score-asc">Score (Ascending)</option>
+            <option value="score-desc">Score (Descending)</option>
+            <option value="comments-asc">Comments (Ascending)</option>
+            <option value="comments-desc">Comments (Descending)</option>
+          </select>
+        </div>
+      </Card>
+
       <div className="flex flex-wrap justify-center">
         {stories.map((story: any, index: number) => (
           <Card
@@ -211,7 +310,7 @@ export default function FetchStories() {
             <div className="flex-row justify-center items-center ml-2">
               <div className="flex justify-between items-baseline">
                 <CardHeader>
-                  {story.url ? (
+                  {story.url && storyType !== "ask" ? (
                     <Link href={story.url} target="_blank">
                       <div className="flex items-start flex-wrap sm:flex-nowrap">
                         <div className="flex items-center">
@@ -237,10 +336,37 @@ export default function FetchStories() {
                           {index + 1}&nbsp;•&nbsp;
                         </CardTitle>
                       </div>
-                      <CardTitle className="cursor-pointer hover:underline text-xl ml-2 break-words">
+                      <CardTitle className="text-xl ml-2 break-words">
                         {story.title}
                       </CardTitle>
                     </div>
+                  )}
+                  {(story.title.startsWith("Ask HN:") ||
+                    story.title.startsWith("Tell HN:")) && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openAskSection(story.id)}
+                        className="ml-2 mt-2"
+                        style={{ alignSelf: "flex-start" }}
+                      >
+                        {currentAskStoryId === story.id ? (
+                          <>
+                            <ChevronRight className="mr-1" /> Hide Question
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="mr-1" /> Show Question
+                          </>
+                        )}
+                      </Button>
+                      {currentAskStoryId === story.id && (
+                        <CardDescription className="text-xs text-muted-foreground text-justify">
+                          {story.text}
+                        </CardDescription>
+                      )}
+                    </>
                   )}
                 </CardHeader>
 
@@ -264,7 +390,7 @@ export default function FetchStories() {
                 {story.score} points <span className="pl-2">▶︎</span>
               </CardDescription>
               <CardDescription className="text-xs text-muted-foreground mr-2 break-words flex items-center">
-                by {story.by}{" "}
+                <OtherUsersProfilesModal username={story.by} />
                 {story.descendants !== undefined && (
                   <span className="pl-2">▶︎</span>
                 )}
@@ -278,18 +404,27 @@ export default function FetchStories() {
                 </button>
               )}
               <CardDescription className="text-xs text-muted-foreground ml-auto break-words">
-                {story.time}
+                {moment.unix(story.time).fromNow()}
               </CardDescription>
             </CardFooter>
 
             <Comments
               storyId={currentStoryId}
-              open={showComments}
+              open={showComments && currentStoryId === story.id}
               onClose={closeComments}
             />
           </Card>
         ))}
       </div>
+      <SearchResults
+        isOpen={isSearchModalOpen}
+        onClose={() => {
+          setSearchQuery("");
+          setSearchResults([]);
+          setIsSearchModalOpen(false);
+        }}
+        searchResults={searchResults}
+      />
     </div>
   );
 }

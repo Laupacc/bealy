@@ -9,7 +9,7 @@ const fetchStories = async (req: Request, res: Response, endpoint: string) => {
   const offset = parseInt(req.query.offset as string) || 0;
 
   try {
-    // Fetch the list of story IDs using axios
+    // Fetch the list of story IDs
     const { data: storyIds } = await axios.get(
       `https://hacker-news.firebaseio.com/v0/${endpoint}.json`
     );
@@ -68,7 +68,7 @@ router.get("/comments/:storyId", async (req: Request, res: Response) => {
 
     const commentIds = story.kids;
     if (!commentIds) {
-      res.status(404).json({ error: "No comments found for the story." });
+      res.status(200).json([]);
       return;
     }
 
@@ -89,6 +89,35 @@ router.get("/comments/:storyId", async (req: Request, res: Response) => {
   }
 });
 
+// Fetch kids (sub-comments) for each comment recursively
+router.get("/kids/:commentId", async (req: Request, res: Response) => {
+  try {
+    const { commentId } = req.params;
+
+    const fetchCommentAndKids = async (commentId: number) => {
+      // Fetch the comment using axios
+      const { data: comment } = await axios.get(
+        `https://hacker-news.firebaseio.com/v0/item/${commentId}.json`
+      );
+
+      if (comment.kids && comment.kids.length > 0) {
+        // Recursively fetch kids of the comment
+        const kidsPromises = comment.kids.map((kidId: number) =>
+          fetchCommentAndKids(kidId)
+        );
+        comment.kids = await Promise.all(kidsPromises);
+      }
+
+      return comment;
+    };
+
+    const commentWithKids = await fetchCommentAndKids(Number(commentId));
+    res.status(200).json(commentWithKids);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve sub-comments" });
+  }
+});
+
 // Fetch all public user profiles by ID
 router.get("/users/:userId", async (req: Request, res: Response) => {
   try {
@@ -100,7 +129,20 @@ router.get("/users/:userId", async (req: Request, res: Response) => {
     );
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve user profile." });
+    res.status(500).json({ error: "Failed to retrieve user profiles." });
+  }
+});
+
+// Search option using Algolia
+router.get("/search", async (req: Request, res: Response) => {
+  try {
+    const { q } = req.query;
+    const { data } = await axios.get(
+      `https://hn.algolia.com/api/v1/search?hitsPerPage=50&query=${q}`
+    );
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to search." });
   }
 });
 

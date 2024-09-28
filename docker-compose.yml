@@ -40,7 +40,7 @@ services:
       - DB_NAME=BEALY_TT_DB
       - DB_HOST=BEALYSQL
       - DB_DIALECT=mysql
-      - JWT_SECRET=secret
+      - JWT_SECRET=XQ3?Fnf7Ha_vp>LjK]b4C@
       - NODE_ENV=development
 
   # ==========================================================================

@@ -1,13 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import UserProfile from "../../components/all/UserProfile";
+import React, { useState, useEffect, useContext } from "react";
 import api from "../../services/api";
 import { useRouter } from "next/navigation";
-import { useContext } from "react";
 import { StoryTypeContext } from "../../../src/context/StoryTypeContext";
 import { useSelectedButton } from "../../../src/context/SelectedButtonContextType";
+import UserProfile from "../../components/all/UserProfile";
+import Link from "next/link";
+import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Menubar,
@@ -60,21 +59,35 @@ export default function MenuBar() {
     { name: "Users", type: "users" },
   ];
 
+  // Change logo on hover
   const handleMouseEnter = () => {
     if (selectedButton !== "top") {
       setLogoSrc("/images/hackernewslogo2inverted.png");
     }
   };
-
   const handleMouseLeave = () => {
     if (selectedButton !== "top") {
       setLogoSrc("/images/hackernewslogo2.png");
     }
   };
 
+  // Change logo on selection
+  useEffect(() => {
+    if (selectedButton === "top") {
+      setLogoSrc("/images/hackernewslogo2inverted.png");
+    } else {
+      setLogoSrc("/images/hackernewslogo2.png");
+    }
+  }, [selectedButton]);
+
+  // Set logo to selected on mount because "top" button is selected by default
+  useEffect(() => {
+    setLogoSrc("/images/hackernewslogo2inverted.png");
+  }, []);
+
+  // Handle button selection
   const handleClick = (type: string) => {
     setSelectedButton(type);
-
     if (type === "users") {
       router.push(`/users`);
     } else if (type === "favorites") {
@@ -85,19 +98,9 @@ export default function MenuBar() {
     }
   };
 
-  // Update logo when `selectedButton` is 'top'
-  useEffect(() => {
-    if (selectedButton === "top") {
-      setLogoSrc("/images/hackernewslogo2inverted.png");
-    } else {
-      setLogoSrc("/images/hackernewslogo2.png");
-    }
-  }, [selectedButton]);
-
   // If user is signed in, display user profile
   useEffect(() => {
     const fetchUserInfo = async () => {
-      console.log("User ID:", userID);
       if (!userID) {
         console.log("User ID or token not found in local storage.");
         return;
@@ -217,7 +220,6 @@ export default function MenuBar() {
                   {userInfo.firstName}
                 </h4>
                 <Avatar>
-                  <AvatarImage src={userInfo.profilePicture} />
                   <AvatarFallback
                     style={{ backgroundColor: "#64748b", color: "white" }}
                   >

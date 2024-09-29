@@ -1,9 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import api from "../../services/api";
-import { Button } from "@/components/ui/button";
 import Comments from "@/components/all/Comments";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import moment from "moment";
+import { ProgressBar } from "react-loader-spinner";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -12,10 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ProgressBar } from "react-loader-spinner";
-import moment from "moment";
 
 export default function Users() {
   const [users, setUsers] = useState<any[]>([]);
@@ -27,6 +27,7 @@ export default function Users() {
   const [showComments, setShowComments] = useState(false);
   const [currentStoryId, setCurrentStoryId] = useState<number | null>(null);
 
+  // Fetch public user profiles from database
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -43,8 +44,10 @@ export default function Users() {
     fetchUsers();
   }, []);
 
+  // Display user's favorites
   const displayUserFavorites = async (userId: number | null) => {
     setFavoritesLoading(true);
+    // Set the user right away
     setSelectedUser(users.find((user) => user.id === userId));
     setDisplayFavorites(true);
     try {
@@ -73,7 +76,7 @@ export default function Users() {
     <div className="container mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Users with Public Profiles</CardTitle>
+          <CardTitle>User Profiles</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -82,16 +85,27 @@ export default function Users() {
             <Table className="w-full">
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-1/10">Picture</TableHead>
                   <TableHead className="w-1/10">Name</TableHead>
                   <TableHead className="w-1/10">Email</TableHead>
                   <TableHead className="w-1/10">Age</TableHead>
                   <TableHead className="w-1/10">Description</TableHead>
-                  <TableHead className="w-1/10 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users?.map((user) => (
                   <TableRow key={user.id}>
+                    <TableCell className="w-1/10">
+                      <img
+                        src={
+                          user.profilePicture
+                            ? user.profilePicture
+                            : "/images/hackernewslogo2.png"
+                        }
+                        alt="Profile Picture"
+                        className="h-12 w-12 rounded-full"
+                      />
+                    </TableCell>
                     <TableCell className="w-1/10">
                       {user.firstName} {user.lastName}
                     </TableCell>

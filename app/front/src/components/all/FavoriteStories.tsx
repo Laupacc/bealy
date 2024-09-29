@@ -1,10 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import api from "../../services/api";
-import Image from "next/image";
 import Comments from "../all/Comments";
 import OtherUsersProfilesModal from "../all/OtherUsersProfilesModal";
+import Link from "next/link";
+import Image from "next/image";
+import moment from "moment";
+import DOMPurify from "dompurify";
+import he from "he";
+import { ProgressBar } from "react-loader-spinner";
+import { TbTriangleFilled } from "react-icons/tb";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardDescription,
@@ -12,12 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ProgressBar } from "react-loader-spinner";
-import { TbTriangleFilled } from "react-icons/tb";
-import moment from "moment";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { start } from "repl";
 
 export default function FavoriteStories() {
   const userID = localStorage.getItem("id");
@@ -171,7 +173,12 @@ export default function FavoriteStories() {
                       </Button>
                       {currentAskStoryId === story.id && (
                         <CardDescription className="text-xs text-muted-foreground text-justify">
-                          {story.text}
+                          {he.decode(
+                            DOMPurify.sanitize(story.text || "", {
+                              ALLOWED_TAGS: [],
+                              ALLOWED_ATTR: [],
+                            })
+                          )}
                         </CardDescription>
                       )}
                     </>
@@ -215,16 +222,24 @@ export default function FavoriteStories() {
           </Card>
         ))}
 
-      {favorites.length === 0 && !loading && !userID && (
-        <div className="text-center text-2xl text-muted-foreground mt-10">
-          No favorite stories yet
-        </div>
+      {favorites.length === 0 && !loading && userID && (
+        <Card className="bg-card text-card-foreground shadow-xl my-2 w-[90%] mx-auto min-h-[8rem] h-auto flex items-center justify-center">
+          <CardHeader>
+            <CardTitle className="text-center text-2xl text-muted-foreground">
+              No favorite stories yet
+            </CardTitle>
+          </CardHeader>
+        </Card>
       )}
 
-      {favorites.length === 0 && !loading && userID && (
-        <div className="text-center text-2xl text-muted-foreground mt-10">
-          Log in to see your favorite stories
-        </div>
+      {favorites.length === 0 && !loading && !userID && (
+        <Card className="bg-card text-card-foreground shadow-xl my-2 w-[90%] mx-auto min-h-[8rem] h-auto flex items-center justify-center">
+          <CardHeader>
+            <CardTitle className="text-center text-2xl text-muted-foreground">
+              Log in to see your favorite stories
+            </CardTitle>
+          </CardHeader>
+        </Card>
       )}
 
       <Comments

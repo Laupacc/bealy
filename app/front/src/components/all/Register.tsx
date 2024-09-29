@@ -1,23 +1,23 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useState, useEffect } from "react";
+import api from "../../services/api";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { registrationSchema } from "@/schemas/registrationSchema";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { registrationSchema } from "@/schemas/registrationSchema";
-import React, { useState, useEffect } from "react";
-import api from "../../services/api";
 
 export default function RegisterForm() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -36,7 +36,8 @@ export default function RegisterForm() {
 
       localStorage.setItem("id", response.data.id);
       alert("Registered successfully!");
-      window.location.href = "/main";
+
+      router.push(`/main`);
       console.log("User created:", response.data);
     } catch (error) {
       setMessage("Error during registration. Please try again.");

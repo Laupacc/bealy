@@ -1,23 +1,24 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useState, useEffect } from "react";
+import api from "../../services/api";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { loginSchema } from "@/schemas/loginSchema";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { loginSchema } from "@/schemas/loginSchema";
-import React, { useState, useEffect } from "react";
-import api from "../../services/api";
 
 export default function LoginForm() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -36,7 +37,7 @@ export default function LoginForm() {
 
       localStorage.setItem("id", response.data.id);
 
-      window.location.href = "/main";
+      router.push(`/main`);
       console.log("User logged in:", response.data);
     } catch (error) {
       setMessage("Error during login. Please try again.");

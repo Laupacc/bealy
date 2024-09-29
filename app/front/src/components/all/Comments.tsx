@@ -1,13 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import api from "../../services/api";
+import OtherUsersProfilesModal from "../all/OtherUsersProfilesModal";
 import moment from "moment";
 import DOMPurify from "dompurify";
 import he from "he";
 import { Comment as LoadingComment } from "react-loader-spinner";
-import OtherUsersProfilesModal from "../all/OtherUsersProfilesModal";
-import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
@@ -59,7 +59,6 @@ export default function Comments({ storyId, open, onClose }: CommentsProps) {
         );
 
         setComments(commentsWithKids);
-        console.log("Comments:", commentsWithKids);
       } catch (error) {
         console.error("Error fetching comments:", error);
       } finally {
@@ -76,7 +75,7 @@ export default function Comments({ storyId, open, onClose }: CommentsProps) {
     }
   }, [open]);
 
-  // Count the number of comments, don't count deleted comments
+  // Count the number of comments + kids, don't count deleted comments
   const countComments = (comments: any[]): number => {
     return comments.reduce((acc, comment) => {
       if (comment.deleted) {
@@ -95,7 +94,7 @@ export default function Comments({ storyId, open, onClose }: CommentsProps) {
     }));
   };
 
-  // Rendering the comments recursively
+  // Rendering the comments
   const renderComments = (comment: any) => {
     if (comment.deleted) return null;
 

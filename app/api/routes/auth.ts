@@ -44,8 +44,6 @@ export const refreshToken = (req: any, res: Response, next: NextFunction) => {
     const currentTime = Math.floor(Date.now() / 1000);
     const timeToExpire = decoded.exp - currentTime;
 
-    console.log("Time to expire (seconds):", timeToExpire);
-
     // Check if the token is about to expire in the next 10 minutes (600 seconds)
     if (timeToExpire < 600) {
       console.log("Token is about to expire, refreshing...");
@@ -88,6 +86,16 @@ export const appendNewToken = (req: any, res: Response, next: NextFunction) => {
   next();
 };
 
+// Set the token in cookie
+export const setTokenCookie = (res: Response, token: string) => {
+  res.cookie("token", token, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  });
+};
+
 // Register a new user
 router.post("/register", async (req: Request, res: Response) => {
   try {
@@ -104,22 +112,15 @@ router.post("/register", async (req: Request, res: Response) => {
       token: token,
     });
 
-    console.log("User created successfully:", user);
+    console.log("User created successfully");
 
-    res.cookie("token", token, {
-      httpOnly: false, // Prevents access to the cookie via JavaScript
-      secure: false, // Should be 'false' for localhost development
-      sameSite: "lax", // 'lax' for localhost
-      path: "/", // Make the cookie available across the app
-    });
+    setTokenCookie(res, token);
 
-    // Send the response back to the client
     res.status(201).json({
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      // token: user.token,
     });
   } catch (error) {
     console.error("Error during registration process:", error);
@@ -143,23 +144,14 @@ router.post("/login", async (req: Request, res: Response) => {
     }
 
     const token = jwt.sign({ email }, JWT, { expiresIn: "1h" });
-    console.log("Generated token:", token);
 
-    res.cookie("token", token, {
-      httpOnly: false, // Ensures the cookie is accessible via JavaScript
-      secure: false, // Should be 'false' for localhost development
-      sameSite: "lax", // 'lax' for localhost
-      path: "/", // Make the cookie available across the app
-    });
-
-    console.log("Cookie set successfully");
+    setTokenCookie(res, token);
 
     res.status(200).json({
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      // token: token,
     });
   } catch (error) {
     res.status(500).json({ error });
@@ -225,7 +217,7 @@ router.put(
   }
 );
 
-// Retrieve all users whose profiles are public
+// Retrieve all users from databse whose profiles are public
 router.get(
   "/allUsersPublicProfiles",
   authenticateJWT,
@@ -244,7 +236,7 @@ router.get(
   }
 );
 
-// Retrieve a specific user's public profile to see all their stories
+// Retrieve a specific user's public profile from databse to see all their stories
 router.get(
   "publicProfile/:userId",
   authenticateJWT,

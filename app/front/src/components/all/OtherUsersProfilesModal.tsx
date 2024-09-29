@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+import api from "../../services/api";
+import moment from "moment";
+import DOMPurify from "dompurify";
+import he from "he";
 import {
   Dialog,
   DialogContent,
@@ -7,10 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import moment from "moment";
-import DOMPurify from "dompurify";
-import he from "he";
-import api from "../../services/api";
 
 interface UserProfileDialogProps {
   username: string;

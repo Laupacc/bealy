@@ -1,7 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { Switch } from "@/components/ui/switch";
 import api from "../../services/api";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sheet,
@@ -35,6 +37,7 @@ export default function UserProfile({
   children,
 }: UserProfileProps) {
   const userID = localStorage.getItem("id");
+  const router = useRouter();
 
   const [editProfile, setEditProfile] = useState(false);
   const [formData, setFormData] = useState({
@@ -78,7 +81,7 @@ export default function UserProfile({
   const updateUserProfile = async () => {
     if (!userID) return;
 
-    // Create an object with the updated fields
+    // Object with the updated fields
     const updatedFields = {
       firstName: formData.firstName,
       lastName: formData.lastName,
@@ -94,10 +97,10 @@ export default function UserProfile({
     );
 
     try {
-      // Update user profile on the backend
+      // Update user profile
       await api.put(`/auth/${userID}/userInfo`, filteredFields);
 
-      // Update local state after successful backend update
+      // Update local state
       if (userInfo) {
         setUserInfo({ ...userInfo, ...filteredFields });
       }
@@ -106,10 +109,42 @@ export default function UserProfile({
     }
   };
 
+  // Randomize profile picture and save to database
+  const randomizeProfilePicture = async () => {
+    if (!userID) return;
+
+    // Generate random picture
+    const randomIndex = Math.floor(Math.random() * 1000) + 1;
+    const newProfilePictureUrl = `https://picsum.photos/id/${randomIndex}/200/200`;
+
+    try {
+      await api.put(`/auth/${userID}/userInfo`, {
+        profilePicture: newProfilePictureUrl,
+      });
+
+      // Update local state
+      setFormData({
+        ...formData,
+        profilePicture: newProfilePictureUrl,
+      });
+
+      if (userInfo) {
+        setUserInfo({ ...userInfo, profilePicture: newProfilePictureUrl });
+      }
+
+      console.log(
+        "Profile picture randomized and saved:",
+        newProfilePictureUrl
+      );
+    } catch (error) {
+      console.error("Error saving randomized profile picture:", error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("id");
     setUserInfo(null);
-    window.location.href = "/login";
+    router.push("/login");
   };
 
   return (
@@ -123,16 +158,22 @@ export default function UserProfile({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex justify-center items-center mt-16 mb-4">
-          <Avatar>
-            <AvatarImage src={userInfo?.profilePicture} alt="Profile Picture" />
-            <AvatarFallback
-              style={{ backgroundColor: "#64748b", color: "white" }}
-            >
-              {userInfo?.firstName.slice(0, 1).toUpperCase()}{" "}
-              {userInfo?.lastName.slice(0, 1).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+        <div className="flex justify-center my-6 relative">
+          <img
+            src={formData.profilePicture || "/images/hackernewslogo2.png"}
+            alt="Profile Picture"
+            className="w-32 h-32 rounded-full"
+          />
+          <button
+            onClick={randomizeProfilePicture}
+            className="absolute bottom-0 right-6 w-6 h-6 sm:w-8 sm:h-8"
+          >
+            <img
+              src={"/images/random.png"}
+              alt="Randomize Profile Picture"
+              className="w-full h-full"
+            />
+          </button>
         </div>
 
         <div className="grid gap-6 mx-6">

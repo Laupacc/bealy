@@ -1,17 +1,20 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import React, { useState, useEffect, useContext } from "react";
 import api from "../../services/api";
+import { StoryTypeContext } from "../../../src/context/StoryTypeContext";
 import Comments from "../all/Comments";
 import SearchResults from "../all/SearchResults";
 import OtherUsersProfilesModal from "../all/OtherUsersProfilesModal";
+import Link from "next/link";
 import Image from "next/image";
 import moment from "moment";
-import { useContext } from "react";
+import DOMPurify from "dompurify";
+import he from "he";
 import { TbTriangleFilled } from "react-icons/tb";
-import { StoryTypeContext } from "../../../src/context/StoryTypeContext";
 import { ProgressBar } from "react-loader-spinner";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardDescription,
@@ -19,7 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 export default function FetchStories() {
   const userID = localStorage.getItem("id");
@@ -45,7 +47,7 @@ export default function FetchStories() {
   }
   const { storyType } = storyTypeContext;
 
-  // Fetch favorites from the backend on component mount
+  // Fetch favorites from the backend
   useEffect(() => {
     const fetchUserFavorites = async () => {
       if (userID) {
@@ -62,7 +64,7 @@ export default function FetchStories() {
     fetchUserFavorites();
   }, [userID]);
 
-  // Fetch stories
+  // Fetch Hacker News stories
   const fetchHackerNewsStories = async (isInitialLoad = false) => {
     setLoading(true);
     try {
@@ -75,7 +77,7 @@ export default function FetchStories() {
 
       const stories = response.data;
 
-      // If it's the initial load, replace the stories, otherwise append to the list
+      // If initial load, replace stories, otherwise append to the list
       setStories((prevStories) =>
         isInitialLoad ? stories : [...prevStories, ...stories]
       );
@@ -90,12 +92,12 @@ export default function FetchStories() {
 
   // Fetch stories when storyType changes or on initial load
   useEffect(() => {
-    setOffset(0); // Reset offset when the story type changes
-    setStories([]); // Clear current stories when the story type changes
-    fetchHackerNewsStories(true); // Fetch new stories based on story type
+    setOffset(0);
+    setStories([]);
+    fetchHackerNewsStories(true);
   }, [storyType]);
 
-  // Detect when user has scrolled to the bottom and load more stories
+  // Detect when user has scrolled to the bottom of the page
   useEffect(() => {
     const handleScroll = () => {
       if (
@@ -110,7 +112,7 @@ export default function FetchStories() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading]);
 
-  // Fetch more stories when the offset changed and the user scrolls to the bottom
+  // Automatically fetch more stories when the offset changed and the user scrolls to the bottom
   useEffect(() => {
     if (offset > 0) {
       fetchHackerNewsStories();
@@ -237,7 +239,7 @@ export default function FetchStories() {
     }
   };
 
-  // Open Ask Section for story id
+  // Open question in Ask HN section
   const openAskSection = (storyId: number) => {
     setCurrentAskStoryId((prevId) => (prevId === storyId ? null : storyId));
     setShowAskSection(!showAskSection);
@@ -262,12 +264,12 @@ export default function FetchStories() {
         />
       )}
 
-      <Card className="bg-chart-5 text-card-foreground shadow-xl mt-2 mb-4 w-[70%] mx-auto min-h-[4rem] h-auto sticky top-20 flex flex-row justify-around items-center">
-        <div className="flex justify-center items-center">
-          <CardDescription className="text-gray-700 text-xl mx-2">
-            Search HackerNews
+      <Card className="bg-chart-5 text-card-foreground shadow-xl mt-2 mb-4 w-[70%] mx-auto min-h-[4rem] h-auto sticky top-20 flex flex-col sm:flex-row justify-around items-stretch sm:items-center">
+        <div className="flex justify-center items-center m-2">
+          <CardDescription className="text-gray-700 text-md ml-2 mr-5 text-center">
+            HackerNews
           </CardDescription>
-          <input
+          <Input
             className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
             type="text"
             placeholder="Search..."
@@ -280,12 +282,12 @@ export default function FetchStories() {
             }}
           />
         </div>
-        <div className="flex justify-center items-center">
-          <CardDescription className="text-gray-700 text-xl mx-2">
-            Sort by
+        <div className="flex justify-center items-center m-2">
+          <CardDescription className="text-gray-700 text-md ml-2 mr-20 sm:mr-5 text-center">
+            Sort
           </CardDescription>
           <select
-            className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
+            className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 w-full sm:w-auto sm:text-sm sm:p-2"
             onChange={(e) => {
               const [criteria, order] = e.target.value.split("-");
               sortStories(criteria, order);
@@ -363,7 +365,12 @@ export default function FetchStories() {
                       </Button>
                       {currentAskStoryId === story.id && (
                         <CardDescription className="text-xs text-muted-foreground text-justify">
-                          {story.text}
+                          {he.decode(
+                            DOMPurify.sanitize(story.text || "", {
+                              ALLOWED_TAGS: [],
+                              ALLOWED_ATTR: [],
+                            })
+                          )}
                         </CardDescription>
                       )}
                     </>

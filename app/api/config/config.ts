@@ -1,13 +1,14 @@
-
 const config = {
   development: {
-    username: 'root',
-    password: '!pass',
-    database: 'BEALY_TT_DB',
-    host: 'BEALYSQL',
-    dialect: 'mysql',
+    username: "root",
+    password: "!pass",
+    database: "BEALY_TT_DB",
+    host: "BEALYSQL",
+    dialect: "mysql",
   },
 };
 
-export default config;
+const databaseName = config.development.database;
+console.log(databaseName);
 
+export default config;

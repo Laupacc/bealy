@@ -197,16 +197,17 @@ export default function FavoriteStories() {
             </div>
 
             <CardFooter className="flex flex-col sm:flex-row justify-center items-start ml-2">
-              <CardDescription className="text-xs text-muted-foreground mr-2 break-words flex items-center">
-                {story.score} points <span className="pl-2">▶︎</span>
-              </CardDescription>
-              <CardDescription className="text-xs text-muted-foreground mr-2 break-words flex items-center">
-                <OtherUsersProfilesModal username={story.by} />
-
-                {story.descendants !== undefined && (
-                  <span className="pl-2">▶︎</span>
+              {story?.score && story.type !== "job" && (
+                <CardDescription className="text-xs text-muted-foreground mr-2 break-words flex items-center">
+                  {story.score} points <span className="pl-2">▶︎</span>
+                </CardDescription>
+              )}
+              <CardDescription className="text-xs text-muted-foreground hover:underline mr-2 break-words flex items-center">
+                {story?.by !== undefined && (
+                  <OtherUsersProfilesModal username={story.by} />
                 )}
               </CardDescription>
+              <div className="text-xs text-muted-foreground pr-2">▶︎</div>
 
               {story.descendants !== undefined && (
                 <button onClick={() => openComments(story.id)}>

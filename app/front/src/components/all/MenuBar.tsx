@@ -7,7 +7,7 @@ import { useSelectedButton } from "../../../src/context/SelectedButtonContextTyp
 import UserProfile from "../../components/all/UserProfile";
 import Link from "next/link";
 import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Menubar,
   MenubarMenu,
@@ -39,6 +39,7 @@ export default function MenuBar() {
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [logoSrc, setLogoSrc] = useState("/images/hackernewslogo2.png");
+  const [randomColor, setRandomColor] = useState<string>("#0891b2");
 
   const { selectedButton, setSelectedButton } = useSelectedButton();
   const storyTypeContext = useContext(StoryTypeContext);
@@ -71,7 +72,7 @@ export default function MenuBar() {
     }
   };
 
-  // Change logo on selection
+  // Change logo color upon selection
   useEffect(() => {
     if (selectedButton === "top") {
       setLogoSrc("/images/hackernewslogo2inverted.png");
@@ -79,11 +80,6 @@ export default function MenuBar() {
       setLogoSrc("/images/hackernewslogo2.png");
     }
   }, [selectedButton]);
-
-  // Set logo to selected on mount because "top" button is selected by default
-  useEffect(() => {
-    setLogoSrc("/images/hackernewslogo2inverted.png");
-  }, []);
 
   // Handle button selection
   const handleClick = (type: string) => {
@@ -119,6 +115,36 @@ export default function MenuBar() {
 
     fetchUserInfo();
   }, [userID]);
+
+  // Apply a random avatar background color (only dark-ish colors)
+  const getRandomColor = () => {
+    const letters = "0123456789";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * letters.length)];
+    }
+    return color;
+  };
+
+  // Change avatar background color every 15 minutes
+  useEffect(() => {
+    const storedColor = localStorage.getItem("randomColor");
+    if (storedColor) {
+      setRandomColor(storedColor);
+    } else {
+      const initialColor = getRandomColor();
+      setRandomColor(initialColor);
+      localStorage.setItem("randomColor", initialColor);
+    }
+
+    const intervalId = setInterval(() => {
+      const newColor = getRandomColor();
+      setRandomColor(newColor);
+      localStorage.setItem("randomColor", newColor);
+    }, 15 * 60 * 1000); // 15 minutes
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <>
@@ -216,12 +242,15 @@ export default function MenuBar() {
           {userInfo ? (
             <UserProfile userInfo={userInfo} setUserInfo={setUserInfo}>
               <div className="flex items-center gap-2 cursor-pointer">
-                <h4 className="text-slate-800 hover:text-white font-medium">
+                <h4 className="text-white hover:text-slate-800 font-medium">
                   {userInfo.firstName}
                 </h4>
                 <Avatar>
                   <AvatarFallback
-                    style={{ backgroundColor: "#64748b", color: "white" }}
+                    className="text-white hover:opacity-80 hover:text-black"
+                    style={{
+                      backgroundColor: randomColor,
+                    }}
                   >
                     {userInfo?.firstName.slice(0, 1).toUpperCase()}{" "}
                     {userInfo?.lastName.slice(0, 1).toUpperCase()}

@@ -94,6 +94,8 @@ export default function FetchStories() {
   useEffect(() => {
     setOffset(0);
     setStories([]);
+    setSearchResults([]);
+    setIsSearchModalOpen(false);
     fetchHackerNewsStories(true);
   }, [storyType]);
 
@@ -264,46 +266,52 @@ export default function FetchStories() {
         />
       )}
 
-      <Card className="bg-chart-5 text-card-foreground shadow-xl mt-2 mb-4 w-[70%] mx-auto min-h-[4rem] h-auto sticky top-20 flex flex-col sm:flex-row justify-around items-stretch sm:items-center">
-        <div className="flex justify-center items-center m-2">
-          <CardDescription className="text-gray-700 text-md ml-2 mr-5 text-center">
-            HackerNews
-          </CardDescription>
-          <Input
-            className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                searchHackerNewsStories(searchQuery);
-              }
-            }}
-          />
-        </div>
-        <div className="flex justify-center items-center m-2">
-          <CardDescription className="text-gray-700 text-md ml-2 mr-20 sm:mr-5 text-center">
-            Sort
-          </CardDescription>
-          <select
-            className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 w-full sm:w-auto sm:text-sm sm:p-2"
-            onChange={(e) => {
-              const [criteria, order] = e.target.value.split("-");
-              sortStories(criteria, order);
-            }}
-          >
-            <option value="date-asc">Date (Ascending)</option>
-            <option value="date-desc">Date (Descending)</option>
-            <option value="score-asc">Score (Ascending)</option>
-            <option value="score-desc">Score (Descending)</option>
-            <option value="comments-asc">Comments (Ascending)</option>
-            <option value="comments-desc">Comments (Descending)</option>
-          </select>
-        </div>
-      </Card>
+      <div className="flex flex-col justify-center items-center">
+        <Card className="bg-chart-5 text-card-foreground shadow-xl w-[70%] mx-auto min-h-[4rem] h-auto fixed top-20 flex flex-col sm:flex-row justify-around items-stretch sm:items-center">
+          <div className="flex justify-center items-center m-2">
+            <CardDescription className="text-gray-900 text-md ml-2 mr-2 md:mr-5 text-center">
+              HackerNews
+            </CardDescription>
+            <Input
+              className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  searchHackerNewsStories(searchQuery);
+                }
+              }}
+            />
+          </div>
+          <div className="flex justify-center items-center m-2">
+            <CardDescription className="text-gray-900 text-md ml-2 mr-[4.3rem] sm:mr-3 md:mr-5 text-center">
+              Sort
+            </CardDescription>
+            <select
+              className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 w-full sm:w-[9.6rem]"
+              onChange={(e) => {
+                const [criteria, order] = e.target.value.split("-");
+                sortStories(criteria, order);
+              }}
+            >
+              <option value="date-asc">Date (Asc)</option>
+              <option value="date-desc">Date (Desc)</option>
+              {storyType !== "job" && (
+                <>
+                  <option value="score-asc">Score (Asc)</option>
+                  <option value="score-desc">Score (Desc)</option>
+                  <option value="comments-asc">Comments (Asc)</option>
+                  <option value="comments-desc">Comments (Desc)</option>
+                </>
+              )}
+            </select>
+          </div>
+        </Card>
+      </div>
 
-      <div className="flex flex-wrap justify-center">
+      <div className="flex flex-wrap justify-center mt-32 sm:mt-24">
         {stories.map((story: any, index: number) => (
           <Card
             key={story.id}
@@ -312,7 +320,7 @@ export default function FetchStories() {
             <div className="flex-row justify-center items-center ml-2">
               <div className="flex justify-between items-baseline">
                 <CardHeader>
-                  {story.url && storyType !== "ask" ? (
+                  {story?.url && storyType !== "ask" ? (
                     <Link href={story.url} target="_blank">
                       <div className="flex items-start flex-wrap sm:flex-nowrap">
                         <div className="flex items-center">
@@ -343,6 +351,8 @@ export default function FetchStories() {
                       </CardTitle>
                     </div>
                   )}
+
+                  {/* Ask HN Section Button */}
                   {(story.title.startsWith("Ask HN:") ||
                     story.title.startsWith("Tell HN:")) && (
                     <>
@@ -393,15 +403,17 @@ export default function FetchStories() {
             </div>
 
             <CardFooter className="flex flex-col sm:flex-row justify-center items-start ml-2">
-              <CardDescription className="text-xs text-muted-foreground mr-2 break-words flex items-center">
-                {story.score} points <span className="pl-2">▶︎</span>
-              </CardDescription>
-              <CardDescription className="text-xs text-muted-foreground mr-2 break-words flex items-center">
-                <OtherUsersProfilesModal username={story.by} />
-                {story.descendants !== undefined && (
-                  <span className="pl-2">▶︎</span>
-                )}
-              </CardDescription>
+              {story?.score && storyType !== "job" && (
+                <CardDescription className="text-xs text-muted-foreground mr-2 break-words flex items-center">
+                  {story.score} points <span className="pl-2">▶︎</span>
+                </CardDescription>
+              )}
+              {story?.by !== undefined && (
+                <CardDescription className="text-xs text-muted-foreground hover:underline mr-2 break-words flex items-center">
+                  <OtherUsersProfilesModal username={story.by} />
+                </CardDescription>
+              )}
+              <div className="text-xs text-muted-foreground pr-2">▶︎</div>
 
               {story.descendants !== undefined && (
                 <button onClick={() => openComments(story.id)}>

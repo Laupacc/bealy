@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "../../services/api";
 import Comments from "@/components/all/Comments";
 import Link from "next/link";
@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/table";
 
 export default function Users() {
+  const userID = localStorage.getItem("id");
+  const favoritesRef = useRef<HTMLDivElement>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [userFavorites, setUserFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -50,6 +52,11 @@ export default function Users() {
     // Set the user right away
     setSelectedUser(users.find((user) => user.id === userId));
     setDisplayFavorites(true);
+
+    if (favoritesRef.current) {
+      favoritesRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+
     try {
       const response = await api.get(`/favorites/allFavorites/${userId}`);
       setUserFavorites(response.data);
@@ -93,39 +100,41 @@ export default function Users() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users?.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="w-1/10">
-                      <img
-                        src={
-                          user.profilePicture
-                            ? user.profilePicture
-                            : "/images/hackernewslogo2.png"
-                        }
-                        alt="Profile Picture"
-                        className="h-12 w-12 rounded-full"
-                      />
-                    </TableCell>
-                    <TableCell className="w-1/10">
-                      {user.firstName} {user.lastName}
-                    </TableCell>
-                    <TableCell className="w-1/10">{user.email}</TableCell>
-                    <TableCell className="w-1/10">
-                      {user.age || "N/A"}
-                    </TableCell>
-                    <TableCell className="w-1/10">
-                      {user.description || "N/A"}
-                    </TableCell>
-                    <TableCell className="w-1/10 text-right">
-                      <Button
-                        variant="outline"
-                        onClick={() => displayUserFavorites(user.id)}
-                      >
-                        Show Favorites
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {users
+                  ?.filter((user) => user.id !== Number(userID))
+                  .map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="w-1/10">
+                        <img
+                          src={
+                            user.profilePicture
+                              ? user.profilePicture
+                              : "/images/hackernewslogo2.png"
+                          }
+                          alt="Profile Picture"
+                          className="h-12 w-12 rounded-full"
+                        />
+                      </TableCell>
+                      <TableCell className="w-1/10">
+                        {user.firstName} {user.lastName}
+                      </TableCell>
+                      <TableCell className="w-1/10">{user.email}</TableCell>
+                      <TableCell className="w-1/10">
+                        {user.age || "N/A"}
+                      </TableCell>
+                      <TableCell className="w-1/10">
+                        {user.description || "N/A"}
+                      </TableCell>
+                      <TableCell className="w-1/10 text-right">
+                        <Button
+                          variant="outline"
+                          onClick={() => displayUserFavorites(user.id)}
+                        >
+                          Show Favorites
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           )}
@@ -134,7 +143,7 @@ export default function Users() {
 
       {/* User's Favorites Section */}
       {displayFavorites && (
-        <div className="mt-8">
+        <div className="mt-8" ref={favoritesRef}>
           <Card>
             {favoritesLoading ? (
               <CardHeader>
@@ -195,7 +204,10 @@ export default function Users() {
                             )}
                           </TableCell>
                           <TableCell className="w-1/6">
-                            <button onClick={() => openComments(favorite.id)}>
+                            <button
+                              onClick={() => openComments(favorite.id)}
+                              className="hover:underline"
+                            >
                               {favorite.descendants || 0} comments
                             </button>
                           </TableCell>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import MenuBar from "@/components/all/MenuBar";
 import { StoryTypeProvider } from "../context/StoryTypeContext";
 import { SelectedButtonProvider } from "../context/SelectedButtonContextType";
 import "./globals.css";
@@ -38,7 +39,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <StoryTypeProvider>
-          <SelectedButtonProvider>{children}</SelectedButtonProvider>
+          <SelectedButtonProvider>
+            <MenuBar />
+            {children}
+          </SelectedButtonProvider>
         </StoryTypeProvider>
       </body>
     </html>

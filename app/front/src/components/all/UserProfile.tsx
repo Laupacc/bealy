@@ -2,9 +2,7 @@
 import React, { useState } from "react";
 import api from "../../services/api";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sheet,
   SheetContent,
@@ -161,7 +159,7 @@ export default function UserProfile({
         <div className="flex justify-center my-6 relative">
           <img
             src={formData.profilePicture || "/images/hackernewslogo2.png"}
-            alt="Profile Picture"
+            alt="Profile"
             className="w-32 h-32 rounded-full"
           />
           <button
@@ -171,7 +169,7 @@ export default function UserProfile({
             <img
               src={"/images/random.png"}
               alt="Randomize Profile Picture"
-              className="w-full h-full"
+              className="w-full h-full hover:scale-110"
             />
           </button>
         </div>
@@ -270,13 +268,13 @@ export default function UserProfile({
                   updateUserProfile();
                   setEditProfile(false);
                 }}
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
                 Save
               </button>
               <button
                 onClick={() => setEditProfile(false)}
-                className="bg-gray-300 px-4 py-2 rounded"
+                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
               >
                 Cancel
               </button>
@@ -284,7 +282,7 @@ export default function UserProfile({
           ) : (
             <button
               onClick={() => setEditProfile(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
               Edit
             </button>
@@ -292,7 +290,7 @@ export default function UserProfile({
         </div>
 
         {/* Logout button at the bottom */}
-        <div className="mt-auto flex justify-center text-xl">
+        <div className="mt-auto flex justify-center text-xl hover:text-blue-500">
           <button onClick={handleLogout}>Logout</button>
         </div>
       </SheetContent>

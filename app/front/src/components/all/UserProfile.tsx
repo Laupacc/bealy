@@ -117,7 +117,7 @@ export default function UserProfile({
       <SheetTrigger>{children}</SheetTrigger>
       <SheetContent className="flex flex-col h-full">
         <SheetHeader>
-          <SheetTitle>My Information</SheetTitle>
+          <SheetTitle>My Profile</SheetTitle>
           <SheetDescription>
             View and edit your profile information
           </SheetDescription>

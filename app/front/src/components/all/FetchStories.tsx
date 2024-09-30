@@ -353,8 +353,8 @@ export default function FetchStories() {
                   )}
 
                   {/* Ask HN Section Button */}
-                  {(story.title.startsWith("Ask HN:") ||
-                    story.title.startsWith("Tell HN:")) && (
+                  {(story?.title.startsWith("Ask HN:") ||
+                    story?.title.startsWith("Tell HN:")) && (
                     <>
                       <Button
                         variant="ghost"
@@ -387,33 +387,38 @@ export default function FetchStories() {
                   )}
                 </CardHeader>
 
-                <Image
-                  src={
-                    favorites.includes(story.id)
-                      ? "/images/save.png"
-                      : "/images/saveOutline.png"
-                  }
-                  width={25}
-                  height={25}
-                  alt="delete"
-                  onClick={() => toggleFavorites(story.id)}
-                  className="cursor-pointer mr-6 w-auto h-auto max-w-[25px] max-h-[25px] sm:max-w-[30px] sm:max-h-[30px]"
-                />
+                {userID && (
+                  <Image
+                    src={
+                      favorites.includes(story.id)
+                        ? "/images/save.png"
+                        : "/images/saveOutline.png"
+                    }
+                    width={25}
+                    height={25}
+                    alt="delete"
+                    onClick={() => toggleFavorites(story.id)}
+                    className="cursor-pointer mr-6 w-auto h-auto max-w-[25px] max-h-[25px] sm:max-w-[30px] sm:max-h-[30px]"
+                  />
+                )}
               </div>
             </div>
 
             <CardFooter className="flex flex-col sm:flex-row justify-center items-start ml-2">
-              {story?.score && storyType !== "job" && (
+              {story?.score && story.type !== "job" && (
                 <CardDescription className="text-xs text-muted-foreground mr-2 break-words flex items-center">
                   {story.score} points <span className="pl-2">▶︎</span>
                 </CardDescription>
               )}
+
               {story?.by !== undefined && (
                 <CardDescription className="text-xs text-muted-foreground hover:underline mr-2 break-words flex items-center">
                   <OtherUsersProfilesModal username={story.by} />
                 </CardDescription>
               )}
-              <div className="text-xs text-muted-foreground pr-2">▶︎</div>
+              {story.type !== "job" && (
+                <div className="text-xs text-muted-foreground pr-2">▶︎</div>
+              )}
 
               {story.descendants !== undefined && (
                 <button onClick={() => openComments(story.id)}>

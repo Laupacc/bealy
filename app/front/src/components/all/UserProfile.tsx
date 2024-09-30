@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import api from "../../services/api";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -35,6 +36,8 @@ export default function UserProfile({
   children,
 }: UserProfileProps) {
   const userID = localStorage.getItem("id");
+  const token = Cookies.get("token");
+
   const router = useRouter();
 
   const [editProfile, setEditProfile] = useState(false);
@@ -139,10 +142,17 @@ export default function UserProfile({
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("id");
-    setUserInfo(null);
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      await api.post(`/auth/logout`);
+      localStorage.removeItem("id");
+      localStorage.removeItem("randomColor");
+      Cookies.remove("token");
+      setUserInfo(null);
+      router.refresh();
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   return (

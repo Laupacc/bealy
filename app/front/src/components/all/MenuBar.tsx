@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import api from "../../services/api";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { StoryTypeContext } from "../../../src/context/StoryTypeContext";
 import { useSelectedButton } from "../../../src/context/SelectedButtonContextType";
 import UserProfile from "../../components/all/UserProfile";
@@ -35,8 +36,15 @@ interface UserInfo {
 }
 
 export default function MenuBar() {
-  const userID = localStorage.getItem("id");
   const router = useRouter();
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/login";
+
+  if (isLoginPage) {
+    return null;
+  }
+
+  const userID = localStorage.getItem("id");
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [logoSrc, setLogoSrc] = useState("/images/hackernewslogo2.png");
   const [randomColor, setRandomColor] = useState<string>("#0891b2");
@@ -98,7 +106,6 @@ export default function MenuBar() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       if (!userID) {
-        console.log("User ID or token not found in local storage.");
         return;
       }
 
@@ -136,13 +143,11 @@ export default function MenuBar() {
       setRandomColor(initialColor);
       localStorage.setItem("randomColor", initialColor);
     }
-
     const intervalId = setInterval(() => {
       const newColor = getRandomColor();
       setRandomColor(newColor);
       localStorage.setItem("randomColor", newColor);
-    }, 15 * 60 * 1000); // 15 minutes
-
+    }, 30 * 60 * 1000); // 30 minutes
     return () => clearInterval(intervalId);
   }, []);
 
@@ -150,7 +155,7 @@ export default function MenuBar() {
     <>
       <Menubar className="flex justify-between items-center bg-orange-500 p-4 shadow-md text-slate-800 h-16 sticky top-0 z-50">
         <MenubarMenu>
-          {/* Logo button to top stories*/}
+          {/* Logo button, goes to top stories*/}
           <button
             onClick={() => handleClick("top")}
             onMouseEnter={handleMouseEnter}
@@ -210,13 +215,13 @@ export default function MenuBar() {
             </DropdownMenu>
           </div>
 
-          {/* If not large screen (desktop) display normal menu */}
+          {/* If large screen (desktop) display normal menu */}
           {storyButtons.map((button, index) => (
             <button
               key={index}
               className={`hidden md:block text-lg ${
                 selectedButton === button.type
-                  ? "text-white"
+                  ? "text-white font-medium"
                   : "text-slate-800 hover:text-white font-medium"
               }`}
               onClick={() => handleClick(button.type)}
@@ -230,7 +235,7 @@ export default function MenuBar() {
               key={index}
               className={`hidden md:block text-lg ${
                 selectedButton === button.type
-                  ? "text-white"
+                  ? "text-white font-medium"
                   : "text-slate-800 hover:text-white font-medium"
               }`}
               onClick={() => handleClick(button.type)}
@@ -242,12 +247,12 @@ export default function MenuBar() {
           {userInfo ? (
             <UserProfile userInfo={userInfo} setUserInfo={setUserInfo}>
               <div className="flex items-center gap-2 cursor-pointer">
-                <h4 className="text-white hover:text-slate-800 font-medium">
+                <h4 className="text-white font-medium text-lg hover:text-slate-800">
                   {userInfo.firstName}
                 </h4>
                 <Avatar>
                   <AvatarFallback
-                    className="text-white hover:opacity-80 hover:text-black"
+                    className="text-white hover:opacity-80"
                     style={{
                       backgroundColor: randomColor,
                     }}
@@ -261,7 +266,7 @@ export default function MenuBar() {
           ) : (
             <Link
               href="/login"
-              className="text-slate-800 hover:text-white font-medium"
+              className="text-lg text-white border border-white rounded-md px-3 py-1 hover:transform hover:scale-105 hover:duration-200 hover:ease-in-out"
             >
               Login
             </Link>

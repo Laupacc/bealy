@@ -46,6 +46,7 @@ export default function OtherUsersProfilesModal({
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold leading-none text-gray-900">
             {username}
+            <DialogDescription /> {/* To avoid warning message */}
           </DialogTitle>
         </DialogHeader>
         {publicUserProfile && (
@@ -54,31 +55,31 @@ export default function OtherUsersProfilesModal({
             className="flex flex-col items-start justify-start space-y-4"
           >
             <div className="flex flex-row items-center justify-start space-x-2 flex-wrap">
-              <span className="text-left font-semibold">Member since:</span>
-              <span>
+              <div className="text-left font-semibold">Member since:</div>
+              <div>
                 {moment.unix(publicUserProfile.created).format("MMMM Do YYYY")}
-              </span>
+              </div>
             </div>
             <div className="flex flex-row items-center justify-start space-x-2 flex-wrap">
-              <span className="font-semibold">Karma:</span>
-              <span>{publicUserProfile.karma}</span>
+              <div className="font-semibold">Karma:</div>
+              <div>{publicUserProfile.karma}</div>
             </div>
             <div className="flex flex-row items-center justify-start space-x-2 flex-wrap">
-              <span className="font-semibold">
-                {publicUserProfile.submitted.length}
-              </span>
-              <span>total stories, polls and/or comments submitted</span>
+              <div className="font-semibold">
+                {publicUserProfile.submitted?.length}
+              </div>
+              <div>total stories, polls and/or comments submitted</div>
             </div>
-            <div className="flex flex-row items-center justify-start space-x-2 flex-wrap">
-              <span className="font-semibold">Description:</span>
-              <span className="text-justify">
+            <div className="flex flex-row items-center justify-start space-x-2 flex-wrap break-all">
+              <div className="font-semibold">Description:</div>
+              <div className="text-justify">
                 {he.decode(
                   DOMPurify.sanitize(publicUserProfile.about, {
                     ALLOWED_TAGS: [],
                     ALLOWED_ATTR: [],
                   })
                 ) || "No description available"}
-              </span>
+              </div>
             </div>
           </DialogDescription>
         )}

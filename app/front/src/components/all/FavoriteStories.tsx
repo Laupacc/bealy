@@ -12,7 +12,6 @@ import { ProgressBar } from "react-loader-spinner";
 import { TbTriangleFilled } from "react-icons/tb";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardDescription,
@@ -35,8 +34,12 @@ export default function FavoriteStories() {
   // Fetch user's favorites
   useEffect(() => {
     const fetchFavoritesStories = async () => {
-      setLoading(true);
+      if (!userID) {
+        setLoading(false);
+        return;
+      }
       try {
+        setLoading(true);
         const response = await api.get(`/favorites/allFavorites/${userID}`);
         response.data.forEach((story: any) => {
           story.time = moment.unix(story.time).fromNow();
@@ -111,6 +114,7 @@ export default function FavoriteStories() {
 
       {favorites.length > 0 &&
         !loading &&
+        userID &&
         favorites.map((story, index) => (
           <Card
             key={story.id}
@@ -207,7 +211,10 @@ export default function FavoriteStories() {
                   <OtherUsersProfilesModal username={story.by} />
                 )}
               </CardDescription>
-              <div className="text-xs text-muted-foreground pr-2">▶︎</div>
+
+              {story.type !== "job" && (
+                <div className="text-xs text-muted-foreground pr-2">▶︎</div>
+              )}
 
               {story.descendants !== undefined && (
                 <button onClick={() => openComments(story.id)}>
@@ -233,8 +240,8 @@ export default function FavoriteStories() {
         </Card>
       )}
 
-      {favorites.length === 0 && !loading && !userID && (
-        <Card className="bg-card text-card-foreground shadow-xl my-2 w-[90%] mx-auto min-h-[8rem] h-auto flex items-center justify-center">
+      {!userID && (
+        <Card className="bg-card text-card-foreground shadow-xl mt-8 w-[90%] mx-auto min-h-[8rem] h-auto flex items-center justify-center">
           <CardHeader>
             <CardTitle className="text-center text-2xl text-muted-foreground">
               Log in to see your favorite stories

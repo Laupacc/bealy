@@ -8,7 +8,4 @@ const config = {
   },
 };
 
-const databaseName = config.development.database;
-console.log(databaseName);
-
 export default config;

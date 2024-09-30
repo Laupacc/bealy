@@ -176,8 +176,7 @@ export default function Comments({ storyId, open, onClose }: CommentsProps) {
             <LoadingComment
               height={100}
               width={100}
-              color="#f97316"
-              backgroundColor="blue"
+              backgroundColor="#0369a1"
               ariaLabel="Loading comments..."
             />
           </div>

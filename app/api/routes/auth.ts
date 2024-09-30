@@ -14,7 +14,8 @@ export const authenticateJWT = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  // const token = req.headers.authorization?.split(" ")[1];
+  const token = req.cookies.token;
 
   if (!token) {
     console.log("No token provided");
@@ -34,7 +35,9 @@ export const authenticateJWT = (
 
 // Middleware to refresh JWT token
 export const refreshToken = (req: any, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  // const token = req.headers.authorization?.split(" ")[1];
+  const token = req.cookies.token;
+
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
   }
@@ -54,9 +57,11 @@ export const refreshToken = (req: any, res: Response, next: NextFunction) => {
       console.log("Generated new token");
 
       res.locals.newToken = newToken; // Store the new token temporarily
-      res.setHeader("Authorization", `Bearer ${res.locals.newToken}`);
+      // res.setHeader("Authorization", `Bearer ${res.locals.newToken}`);
+      // Set the new token in the cookie
+      setTokenCookie(res, newToken);
 
-      console.log("New token added to response in RefreshToken middleware");
+      console.log("New token added to header in RefreshToken middleware");
     }
 
     req.user = decoded;
@@ -67,31 +72,12 @@ export const refreshToken = (req: any, res: Response, next: NextFunction) => {
   }
 };
 
-// // Middleware to append the refreshed token to the response for Cookies
-export const appendNewToken = (req: any, res: Response, next: NextFunction) => {
-  // Intercept the response after processing is done
-  const originalJson = res.json;
-
-  res.json = function (data) {
-    // If there's a new token in res.locals, add it to the response body
-    if (res.locals.newToken) {
-      data.token = res.locals.newToken;
-      res.setHeader("Authorization", `Bearer ${res.locals.newToken}`);
-      console.log("New token added to response in AppendNewToken middleware");
-    }
-
-    return originalJson.call(this, data);
-  };
-
-  next();
-};
-
 // Set the token in cookie
 export const setTokenCookie = (res: Response, token: string) => {
   res.cookie("token", token, {
-    httpOnly: false,
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/",
   });
 };
@@ -158,12 +144,18 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
+// Logout a user
+router.post("/logout", (req: Request, res: Response) => {
+  res.clearCookie("token");
+  res.status(200).send("Logout successful");
+});
+
 // Get a user's info by ID
 router.get(
   "/:userId/userInfo",
   authenticateJWT,
   refreshToken,
-  appendNewToken,
+  // appendNewToken,
   async (req: any, res: any) => {
     try {
       const user = await User.findOne({ where: { id: req.params.userId } });
@@ -193,7 +185,7 @@ router.put(
   "/:userId/userInfo",
   authenticateJWT,
   refreshToken,
-  appendNewToken,
+  // appendNewToken,
   async (req: any, res: any) => {
     try {
       const user = await User.findOne({ where: { id: req.params.userId } });
@@ -222,7 +214,7 @@ router.get(
   "/allUsersPublicProfiles",
   authenticateJWT,
   refreshToken,
-  appendNewToken,
+  // appendNewToken,
   async (req: any, res: any) => {
     try {
       const users = await User.findAll({
@@ -241,7 +233,7 @@ router.get(
   "publicProfile/:userId",
   authenticateJWT,
   refreshToken,
-  appendNewToken,
+  // appendNewToken,
   async (req: any, res: any) => {
     try {
       const user = await User.findOne({ where: { id: req.params.userId } });

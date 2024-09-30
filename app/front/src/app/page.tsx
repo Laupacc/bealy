@@ -1,4 +1,3 @@
-import { getCookie, getCookies } from "cookies-next";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
@@ -20,17 +19,5 @@ export default async function Home() {
     );
   }
 
-  const token = getCookie("token");
-  const allCookies = getCookies();
-
-  console.log("All cookies:", allCookies);
-
-  if (token) {
-    console.log("Token found in cookies");
-    redirect("/main");
-  } else {
-    console.log("Token not found in cookies, redirecting to login");
-    console.log("more debug info:", allCookies);
-    redirect("/login");
-  }
+  redirect("/main");
 }

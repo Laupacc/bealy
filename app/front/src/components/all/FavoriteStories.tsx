@@ -61,7 +61,7 @@ export default function FavoriteStories() {
     };
 
     fetchFavoritesStories();
-  }, [favorites.length]);
+  }, [favorites.length, userID]);
 
   const deleteStoryFromFavorites = async (storyId: number | null) => {
     if (!userID) {

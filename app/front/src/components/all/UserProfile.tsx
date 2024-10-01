@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Switch } from "@/components/ui/switch";
 import {
   Sheet,
@@ -170,30 +171,38 @@ export default function UserProfile({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex justify-center my-6 relative">
-          <img
+        <div className="flex justify-center my-3 relative">
+          <Image
             src={formData.profilePicture || "/images/hackernewslogo2.png"}
             alt="Profile"
-            className="w-32 h-32 rounded-full"
+            className="rounded-full"
+            width={130}
+            height={130}
           />
           <button
             onClick={randomizeProfilePicture}
             className="absolute bottom-0 right-6 w-6 h-6 sm:w-8 sm:h-8"
           >
-            <img
+            <Image
               src={"/images/random.png"}
               alt="Randomize Profile Picture"
               className="w-full h-full hover:scale-110"
+              priority
+              width={100}
+              height={100}
             />
           </button>
         </div>
 
-        <div className="grid gap-6 mx-6">
+        <div className="grid gap-6 md:mx-6 overflow-auto">
           <div className="flex justify-between">
             <span className="font-bold">First Name:</span>
             {editProfile ? (
               <input
+                id="firstName"
                 name="firstName"
+                type="text"
+                autoComplete="given-name"
                 value={formData.firstName || ""}
                 onChange={handleChange}
                 className="border rounded px-2 py-1 w-1/2"
@@ -206,7 +215,10 @@ export default function UserProfile({
             <span className="font-bold">Last Name:</span>
             {editProfile ? (
               <input
+                id="lastName"
                 name="lastName"
+                type="text"
+                autoComplete="family-name"
                 value={formData.lastName || ""}
                 onChange={handleChange}
                 className="border rounded px-2 py-1 w-1/2"
@@ -220,7 +232,10 @@ export default function UserProfile({
             <span className="font-bold">Email:</span>
             {editProfile ? (
               <input
+                id="email"
                 name="email"
+                type="email"
+                autoComplete="email"
                 value={formData.email || ""}
                 onChange={handleChange}
                 className="border rounded px-2 py-1 w-1/2"
@@ -234,6 +249,7 @@ export default function UserProfile({
             <span className="font-bold">Age:</span>
             {editProfile ? (
               <select
+                id="age"
                 name="age"
                 value={formData.age || ""}
                 onChange={handleChange}
@@ -251,17 +267,20 @@ export default function UserProfile({
             )}
           </div>
 
-          <div className="flex justify-between">
-            <span className="font-bold">Description:</span>
+          <div className="flex flex-col justify-center items-center">
+            <div className="font-bold text-center mb-2">Description:</div>
             {editProfile ? (
               <textarea
+                id="description"
                 name="description"
                 value={formData.description || ""}
                 onChange={handleChange}
-                className="border rounded px-2 py-1 w-1/2"
+                className="border rounded px-2 py-1 w-full min-h-28 resize-none text-justify"
               />
             ) : (
-              <span>{userInfo?.description}</span>
+              <div className="w-full min-h-20 max-h-32 overflow-y-auto text-justify">
+                {userInfo?.description}
+              </div>
             )}
           </div>
         </div>

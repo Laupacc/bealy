@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import api from "../../services/api";
 import Comments from "@/components/all/Comments";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
 import { ProgressBar } from "react-loader-spinner";
@@ -28,6 +29,7 @@ export default function Users() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showComments, setShowComments] = useState(false);
   const [currentStoryId, setCurrentStoryId] = useState<number | null>(null);
+  const [isExpanded, setIsExpanded] = useState<{ [key: number]: boolean }>({});
 
   // Get userID from localStorage on component mount
   useEffect(() => {
@@ -89,6 +91,11 @@ export default function Users() {
     setCurrentStoryId(null);
   };
 
+  const truncateText = (text: string, maxLength: number) => {
+    if (text?.length <= maxLength) return text;
+    return text?.slice(0, maxLength) + "...";
+  };
+
   return (
     <div className="container mx-auto p-6">
       <Card>
@@ -115,14 +122,16 @@ export default function Users() {
                   .map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="w-1/10">
-                        <img
+                        <Image
                           src={
                             user.profilePicture
                               ? user.profilePicture
                               : "/images/hackernewslogo2.png"
                           }
                           alt="Profile Picture"
-                          className="h-12 w-12 rounded-full"
+                          className="rounded-full"
+                          width={50}
+                          height={50}
                         />
                       </TableCell>
                       <TableCell className="w-1/10">
@@ -132,9 +141,43 @@ export default function Users() {
                       <TableCell className="w-1/10">
                         {user.age || "N/A"}
                       </TableCell>
+
                       <TableCell className="w-1/10">
-                        {user.description || "N/A"}
+                        {isExpanded[user.id] ? (
+                          <>
+                            {user.description}{" "}
+                            <button
+                              onClick={() =>
+                                setIsExpanded((prev) => ({
+                                  ...prev,
+                                  [user.id]: false,
+                                }))
+                              }
+                              className="text-blue-500 hover:underline"
+                            >
+                              Show Less
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            {truncateText(user.description || "N/A", 30)}{" "}
+                            {user.description?.length > 30 && (
+                              <button
+                                onClick={() =>
+                                  setIsExpanded((prev) => ({
+                                    ...prev,
+                                    [user.id]: true,
+                                  }))
+                                }
+                                className="text-blue-500 hover:underline"
+                              >
+                                Read More
+                              </button>
+                            )}
+                          </>
+                        )}
                       </TableCell>
+
                       <TableCell className="w-1/10 text-right">
                         <Button
                           variant="outline"

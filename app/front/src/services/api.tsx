@@ -1,5 +1,5 @@
-import Cookies from "js-cookie";
 import axios from "axios";
+// import Cookies from "js-cookie";
 
 // Create an instance of Axios
 const api = axios.create({

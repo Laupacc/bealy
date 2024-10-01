@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import moment from "moment";
 import { TbTriangleFilled } from "react-icons/tb";
@@ -40,7 +40,7 @@ export default function SearchResults({
         side="bottom"
       >
         <SheetHeader>
-          <SheetTitle>Search results for "{searchQuery}"</SheetTitle>
+          <SheetTitle>Search results for &quot;{searchQuery}&quot;</SheetTitle>
           <SheetDescription>
             {(hits && hits.length) || 0} results{" "}
           </SheetDescription>

@@ -113,7 +113,6 @@ export default function MenuBar() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       if (!userID) {
-        console.log("User not found or not logged in");
         return;
       }
 

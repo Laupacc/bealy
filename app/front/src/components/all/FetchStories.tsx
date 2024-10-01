@@ -283,7 +283,7 @@ export default function FetchStories() {
               HackerNews
             </CardDescription>
             <Input
-              className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
+              id="search"
               type="text"
               placeholder="Search..."
               value={searchQuery}
@@ -293,6 +293,7 @@ export default function FetchStories() {
                   searchHackerNewsStories(searchQuery);
                 }
               }}
+              className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
             />
           </div>
           <div className="flex justify-center items-center m-2">
@@ -410,7 +411,7 @@ export default function FetchStories() {
                     }
                     width={25}
                     height={25}
-                    alt="delete"
+                    alt="save/delete"
                     onClick={() => toggleFavorites(story.id)}
                     className="cursor-pointer mr-6 w-auto h-auto max-w-[25px] max-h-[25px] sm:max-w-[30px] sm:max-h-[30px]"
                   />
@@ -425,22 +426,27 @@ export default function FetchStories() {
                 </CardDescription>
               )}
 
-              {story?.by !== undefined && (
-                <CardDescription className="text-xs text-muted-foreground hover:underline mr-2 break-words flex items-center">
-                  <OtherUsersProfilesModal username={story.by} />
-                </CardDescription>
-              )}
-              {story.type !== "job" && (
-                <div className="text-xs text-muted-foreground pr-2">▶︎</div>
-              )}
-
-              {story.descendants !== undefined && (
-                <button onClick={() => openComments(story.id)}>
-                  <CardDescription className="text-xs text-muted-foreground hover:underline mr-2 break-words">
-                    {story.descendants} comments
+              <div className="flex items-center">
+                {story?.by !== undefined && (
+                  <CardDescription className="text-xs text-muted-foreground hover:underline mr-2 break-words flex items-center">
+                    <OtherUsersProfilesModal username={story.by} />
                   </CardDescription>
-                </button>
-              )}
+                )}
+                {story.type !== "job" && (
+                  <span className="text-xs text-muted-foreground pr-2">▶︎</span>
+                )}
+              </div>
+              <div className="flex items-center">
+                {story.descendants !== undefined && (
+                  <button onClick={() => openComments(story.id)}>
+                    <CardDescription className="text-xs text-muted-foreground hover:underline mr-2 break-words">
+                      {story.descendants} comments
+                    </CardDescription>
+                  </button>
+                )}
+                <span className="text-xs text-muted-foreground pr-2">▶︎</span>
+              </div>
+
               <CardDescription className="text-xs text-muted-foreground ml-auto break-words">
                 {moment.unix(story.time).fromNow()}
               </CardDescription>

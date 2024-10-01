@@ -68,7 +68,11 @@ export default function RegisterForm() {
               <FormItem className="my-4">
                 <FormLabel className="text-md">First name</FormLabel>
                 <FormControl>
-                  <Input placeholder="First name" {...field} />
+                  <Input
+                    placeholder="First name"
+                    autoComplete="given-name"
+                    {...field}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -80,7 +84,11 @@ export default function RegisterForm() {
               <FormItem className="my-4">
                 <FormLabel className="text-md">Last name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Last name" {...field} />
+                  <Input
+                    placeholder="Last name"
+                    autoComplete="family-name"
+                    {...field}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -92,7 +100,7 @@ export default function RegisterForm() {
               <FormItem className="my-4">
                 <FormLabel className="text-md">Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Email" {...field} />
+                  <Input placeholder="Email" autoComplete="email" {...field} />
                 </FormControl>
               </FormItem>
             )}

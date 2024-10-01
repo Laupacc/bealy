@@ -36,7 +36,7 @@ app.use(
 );
 
 app.use("/auth", authRouter);
-app.use("/favorites", authenticateJWT, refreshToken, favouritesRouter);
+app.use("/favorites", favouritesRouter);
 app.use("/hackernews", hackernewsRouter);
 
 const createDatabase = async (): Promise<void> => {

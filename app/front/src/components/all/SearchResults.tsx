@@ -22,12 +22,14 @@ interface SearchResultsModalProps {
   isOpen: boolean;
   onClose: () => void;
   searchResults: any;
+  searchQuery: string;
 }
 
 export default function SearchResults({
   isOpen,
   onClose,
   searchResults,
+  searchQuery,
 }: SearchResultsModalProps) {
   const { hits } = searchResults;
 
@@ -38,7 +40,7 @@ export default function SearchResults({
         side="bottom"
       >
         <SheetHeader>
-          <SheetTitle>Search Results</SheetTitle>
+          <SheetTitle>Search results for "{searchQuery}"</SheetTitle>
           <SheetDescription>
             {(hits && hits.length) || 0} results{" "}
           </SheetDescription>

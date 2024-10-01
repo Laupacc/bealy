@@ -38,7 +38,8 @@ export default function Comments({ storyId, open, onClose }: CommentsProps) {
 
   // Fetch comments for the story
   useEffect(() => {
-    if (!storyId || !open || loadingComments) return;
+    if (!storyId) return;
+
     const fetchComments = async () => {
       setLoadingComments(true);
       try {

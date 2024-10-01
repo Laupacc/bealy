@@ -32,10 +32,6 @@ export default function Users() {
   // Fetch public user profiles from database
   useEffect(() => {
     const fetchUsers = async () => {
-      if (!userID) {
-        setLoading(false);
-        return;
-      }
       try {
         const response = await api.get("/auth/allUsersPublicProfiles");
         setUsers(response.data);
@@ -88,67 +84,65 @@ export default function Users() {
 
   return (
     <div className="container mx-auto p-6">
-      {userID && (
-        <Card>
-          <CardHeader>
-            <CardTitle>User Profiles</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-12 w-full" />
-            ) : (
-              <Table className="w-full">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-1/10">Picture</TableHead>
-                    <TableHead className="w-1/10">Name</TableHead>
-                    <TableHead className="w-1/10">Email</TableHead>
-                    <TableHead className="w-1/10">Age</TableHead>
-                    <TableHead className="w-1/10">Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users
-                    ?.filter((user) => user.id !== Number(userID))
-                    .map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="w-1/10">
-                          <img
-                            src={
-                              user.profilePicture
-                                ? user.profilePicture
-                                : "/images/hackernewslogo2.png"
-                            }
-                            alt="Profile Picture"
-                            className="h-12 w-12 rounded-full"
-                          />
-                        </TableCell>
-                        <TableCell className="w-1/10">
-                          {user.firstName} {user.lastName}
-                        </TableCell>
-                        <TableCell className="w-1/10">{user.email}</TableCell>
-                        <TableCell className="w-1/10">
-                          {user.age || "N/A"}
-                        </TableCell>
-                        <TableCell className="w-1/10">
-                          {user.description || "N/A"}
-                        </TableCell>
-                        <TableCell className="w-1/10 text-right">
-                          <Button
-                            variant="outline"
-                            onClick={() => displayUserFavorites(user.id)}
-                          >
-                            Show Favorites
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>User Profiles</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <Skeleton className="h-12 w-full" />
+          ) : (
+            <Table className="w-full">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-1/10">Picture</TableHead>
+                  <TableHead className="w-1/10">Name</TableHead>
+                  <TableHead className="w-1/10">Email</TableHead>
+                  <TableHead className="w-1/10">Age</TableHead>
+                  <TableHead className="w-1/10">Description</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users
+                  ?.filter((user) => user.id !== Number(userID))
+                  .map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="w-1/10">
+                        <img
+                          src={
+                            user.profilePicture
+                              ? user.profilePicture
+                              : "/images/hackernewslogo2.png"
+                          }
+                          alt="Profile Picture"
+                          className="h-12 w-12 rounded-full"
+                        />
+                      </TableCell>
+                      <TableCell className="w-1/10">
+                        {user.firstName} {user.lastName}
+                      </TableCell>
+                      <TableCell className="w-1/10">{user.email}</TableCell>
+                      <TableCell className="w-1/10">
+                        {user.age || "N/A"}
+                      </TableCell>
+                      <TableCell className="w-1/10">
+                        {user.description || "N/A"}
+                      </TableCell>
+                      <TableCell className="w-1/10 text-right">
+                        <Button
+                          variant="outline"
+                          onClick={() => displayUserFavorites(user.id)}
+                        >
+                          Show Favorites
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       {/* User's Favorites Section */}
       {displayFavorites && (
@@ -245,16 +239,6 @@ export default function Users() {
             )}
           </Card>
         </div>
-      )}
-
-      {!userID && (
-        <Card className="bg-card text-card-foreground shadow-xl mt-2 w-[90%] mx-auto min-h-[8rem] h-auto flex items-center justify-center">
-          <CardHeader>
-            <CardTitle className="text-center text-2xl text-muted-foreground">
-              Log in to see users
-            </CardTitle>
-          </CardHeader>
-        </Card>
       )}
 
       <Comments

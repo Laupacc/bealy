@@ -106,6 +106,7 @@ export default function MenuBar() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       if (!userID) {
+        console.log("User not found or not logged in");
         return;
       }
 
@@ -153,7 +154,10 @@ export default function MenuBar() {
 
   return (
     <>
-      <Menubar className="flex justify-between items-center bg-orange-500 p-4 shadow-md text-slate-800 h-16 sticky top-0 z-50">
+      <Menubar
+        className="flex justify-between items-center bg-orange-500 p-4 shadow-md text-slate-800 h-16 sticky top-0 z-50"
+        role="navigation"
+      >
         <MenubarMenu>
           {/* Logo button, goes to top stories*/}
           <button

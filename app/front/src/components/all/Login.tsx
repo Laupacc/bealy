@@ -31,9 +31,7 @@ export default function LoginForm() {
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      const response = await api.post(`/auth/login`, data, {
-        withCredentials: true,
-      });
+      const response = await api.post(`/auth/login`, data);
 
       localStorage.setItem("id", response.data.id);
 

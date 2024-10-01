@@ -155,7 +155,6 @@ router.get(
   "/:userId/userInfo",
   authenticateJWT,
   refreshToken,
-  // appendNewToken,
   async (req: any, res: any) => {
     try {
       const user = await User.findOne({ where: { id: req.params.userId } });
@@ -185,7 +184,6 @@ router.put(
   "/:userId/userInfo",
   authenticateJWT,
   refreshToken,
-  // appendNewToken,
   async (req: any, res: any) => {
     try {
       const user = await User.findOne({ where: { id: req.params.userId } });
@@ -210,44 +208,16 @@ router.put(
 );
 
 // Retrieve all users from databse whose profiles are public
-router.get(
-  "/allUsersPublicProfiles",
-  authenticateJWT,
-  refreshToken,
-  // appendNewToken,
-  async (req: any, res: any) => {
-    try {
-      const users = await User.findAll({
-        where: { showProfile: true },
-      });
-      res.status(200).json(users);
-      console.log("Retrieved users");
-    } catch (error) {
-      res.status(500).json({ error: "Failed to retrieve users." });
-    }
+router.get("/allUsersPublicProfiles", async (req: any, res: any) => {
+  try {
+    const users = await User.findAll({
+      where: { showProfile: true },
+    });
+    res.status(200).json(users);
+    console.log("Retrieved users");
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve users." });
   }
-);
-
-// Retrieve a specific user's public profile from databse to see all their stories
-router.get(
-  "publicProfile/:userId",
-  authenticateJWT,
-  refreshToken,
-  // appendNewToken,
-  async (req: any, res: any) => {
-    try {
-      const user = await User.findOne({ where: { id: req.params.userId } });
-      if (!user) {
-        return res.status(404).json({ error: "User not found." });
-      }
-      if (!user.showProfile) {
-        return res.status(403).json({ error: "User profile is not public." });
-      }
-      res.status(200).json(user);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to retrieve user." });
-    }
-  }
-);
+});
 
 export default router;

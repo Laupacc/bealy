@@ -36,7 +36,6 @@ export default function UserProfile({
   children,
 }: UserProfileProps) {
   const userID = localStorage.getItem("id");
-  const token = Cookies.get("token");
 
   const router = useRouter();
 

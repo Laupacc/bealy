@@ -56,7 +56,10 @@ export default function FetchStories() {
           const favoriteStoryIds = response.data.map((story: any) => story.id);
           setFavorites(favoriteStoryIds);
         } catch (error) {
-          console.error("Error fetching user favorites:", error);
+          console.log(
+            "Error fetching user favorites, or user not logged in",
+            error
+          );
         }
       }
     };
@@ -124,7 +127,7 @@ export default function FetchStories() {
   // Add story to user's favorites
   const addStoryToFavorites = async (storyId: number | null) => {
     if (!userID) {
-      console.error("User ID not found in local storage.");
+      console.log("User not found or not logged in.");
       return;
     }
 
@@ -152,7 +155,7 @@ export default function FetchStories() {
   // Remove story from user's favorites
   const removeStoryFromFavorites = async (storyId: number | null) => {
     if (!userID) {
-      console.error("User ID not found in local storage.");
+      console.log("User not found or not logged in.");
       return;
     }
 
@@ -286,11 +289,15 @@ export default function FetchStories() {
             />
           </div>
           <div className="flex justify-center items-center m-2">
-            <CardDescription className="text-gray-900 text-md ml-2 mr-[4.3rem] sm:mr-3 md:mr-5 text-center">
+            <label
+              className="text-gray-900 text-md ml-2 mr-[4.3rem] sm:mr-3 md:mr-5 text-center"
+              htmlFor="sort"
+            >
               Sort
-            </CardDescription>
+            </label>
             <select
               className="rounded-md border border-input bg-background p-2 text-sm shadow-sm outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 w-full sm:w-[9.6rem]"
+              id="sort"
               onChange={(e) => {
                 const [criteria, order] = e.target.value.split("-");
                 sortStories(criteria, order);
@@ -448,6 +455,7 @@ export default function FetchStories() {
           setIsSearchModalOpen(false);
         }}
         searchResults={searchResults}
+        searchQuery={searchQuery}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { authenticateJWT, refreshToken } from "./auth";
 const axios = require("axios");
 const express = require("express");
 const router = express.Router();
@@ -7,32 +8,37 @@ import User from "../models/User";
 import Favorite from "../models/Favorite";
 
 // Add a story to favorites
-router.post("/:userId/:storyId", async (req: any, res: any) => {
-  try {
-    const { userId, storyId } = req.params;
+router.post(
+  "/:userId/:storyId",
+  authenticateJWT,
+  refreshToken,
+  async (req: any, res: any) => {
+    try {
+      const { userId, storyId } = req.params;
 
-    // Check if user exists
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
+      // Check if user exists
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found." });
+      }
+
+      // Check if the favorite already exists for the user
+      const existingFavorite = await Favorite.findOne({
+        where: { userId, storyId },
+      });
+      if (existingFavorite) {
+        res.json("Favorite already exists.");
+        return;
+      }
+
+      // Create new favorite
+      const newFavorite = await Favorite.create({ userId, storyId });
+      res.status(201).json(newFavorite);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to add story to favorites." });
     }
-
-    // Check if the favorite already exists for the user
-    const existingFavorite = await Favorite.findOne({
-      where: { userId, storyId },
-    });
-    if (existingFavorite) {
-      res.json("Favorite already exists.");
-      return;
-    }
-
-    // Create new favorite
-    const newFavorite = await Favorite.create({ userId, storyId });
-    res.status(201).json(newFavorite);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to add story to favorites." });
   }
-});
+);
 
 // Get all favorites for a user
 router.get("/allFavorites/:userId", async (req: Request, res: Response) => {
@@ -75,18 +81,23 @@ const fetchStoriesFromAPI = async (storyIds: number[]) => {
 };
 
 // Remove a story from favorites
-router.delete("/:userId/:storyId", async (req: Request, res: Response) => {
-  try {
-    const { userId, storyId } = req.params;
-    const favorite = await Favorite.findOne({ where: { userId, storyId } });
-    if (!favorite) {
-      return res.status(404).json({ error: "Favorite not found." });
+router.delete(
+  "/:userId/:storyId",
+  authenticateJWT,
+  refreshToken,
+  async (req: Request, res: Response) => {
+    try {
+      const { userId, storyId } = req.params;
+      const favorite = await Favorite.findOne({ where: { userId, storyId } });
+      if (!favorite) {
+        return res.status(404).json({ error: "Favorite not found." });
+      }
+      await favorite.destroy();
+      res.status(200).json({ message: "Favorite removed successfully." });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to remove favorite." });
     }
-    await favorite.destroy();
-    res.status(200).json({ message: "Favorite removed successfully." });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to remove favorite." });
   }
-});
+);
 
 export default router;

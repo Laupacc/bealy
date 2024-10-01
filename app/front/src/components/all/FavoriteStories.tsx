@@ -31,7 +31,7 @@ export default function FavoriteStories() {
     null
   );
 
-  // Fetch user's favorites
+  // Fetch logged in user's favorites
   useEffect(() => {
     const fetchFavoritesStories = async () => {
       if (!userID) {
@@ -48,7 +48,7 @@ export default function FavoriteStories() {
         setLoading(false);
         console.log("Favorites:", response.data);
       } catch (error) {
-        console.error("Error fetching favorites:", error);
+        console.log("Error fetching favorites or user not logged in", error);
         setFavorites([]);
         setLoading(false);
       }
@@ -59,7 +59,7 @@ export default function FavoriteStories() {
 
   const deleteStoryFromFavorites = async (storyId: number | null) => {
     if (!userID) {
-      console.error("User ID not found in local storage.");
+      console.error("User not found.");
       return;
     }
 

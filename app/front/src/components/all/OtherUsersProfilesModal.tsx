@@ -23,6 +23,10 @@ export default function OtherUsersProfilesModal({
 
   // Fetch public user info by ID
   useEffect(() => {
+    if (!username) {
+      console.log("No username provided.");
+      return;
+    }
     const fetchPublicUsersInfo = async () => {
       try {
         const response = await api.get(`/hackernews/users/${username}`);
@@ -36,6 +40,12 @@ export default function OtherUsersProfilesModal({
       fetchPublicUsersInfo();
     }
   }, [username]);
+
+  {
+    /* Still need to address error message : 
+    Warning: In HTML, <div> cannot be a descendant of <p>This will cause a hydration error. 
+    Comes from Dialog UI component. */
+  }
 
   return (
     <Dialog>

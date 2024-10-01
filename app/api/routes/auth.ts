@@ -140,7 +140,10 @@ router.post("/login", async (req: Request, res: Response) => {
       email: user.email,
     });
   } catch (error) {
-    res.status(500).json({ error });
+    console.error("Error during login process:", error);
+    res
+      .status(500)
+      .json({ error: "Internal server error occurred during login." });
   }
 });
 
@@ -174,6 +177,7 @@ router.get(
 
       res.status(200).json(responseData);
     } catch (error) {
+      console.error("Error retrieving user info:", error);
       res.status(500).json({ error: "Failed to retrieve user info." });
     }
   }
@@ -202,6 +206,7 @@ router.put(
         showProfile: user.showProfile,
       });
     } catch (error) {
+      console.error("Error updating user info:", error);
       res.status(500).json({ error: "Failed to update user info." });
     }
   }
@@ -216,6 +221,7 @@ router.get("/allUsersPublicProfiles", async (req: any, res: any) => {
     res.status(200).json(users);
     console.log("Retrieved users");
   } catch (error) {
+    console.error("Error retrieving users:", error);
     res.status(500).json({ error: "Failed to retrieve users." });
   }
 });

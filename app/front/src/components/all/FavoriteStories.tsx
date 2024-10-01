@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/card";
 
 export default function FavoriteStories() {
-  const userID = localStorage.getItem("id");
+  const [userID, setUserID] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [showComments, setShowComments] = useState(false);
   const [currentStoryId, setCurrentStoryId] = useState<number | null>(null);
@@ -30,6 +30,12 @@ export default function FavoriteStories() {
   const [currentAskStoryId, setCurrentAskStoryId] = useState<number | null>(
     null
   );
+  // Get userID from localStorage on component mount
+  useEffect(() => {
+    const id =
+      typeof window !== "undefined" ? localStorage.getItem("id") : null;
+    setUserID(id);
+  }, []);
 
   // Fetch logged in user's favorites
   useEffect(() => {

@@ -44,7 +44,7 @@ export default function MenuBar() {
     return null;
   }
 
-  const userID = localStorage.getItem("id");
+  const [userID, setUserID] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [logoSrc, setLogoSrc] = useState("/images/hackernewslogo2.png");
   const [randomColor, setRandomColor] = useState<string>("#0891b2");
@@ -55,6 +55,13 @@ export default function MenuBar() {
     return null;
   }
   const { setStoryType } = storyTypeContext;
+
+  // Get userID from localStorage on component mount
+  useEffect(() => {
+    const id =
+      typeof window !== "undefined" ? localStorage.getItem("id") : null;
+    setUserID(id);
+  }, []);
 
   const storyButtons = [
     { name: "New", type: "new" },

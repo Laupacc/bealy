@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/card";
 
 export default function FetchStories() {
-  const userID = localStorage.getItem("id");
+  const [userID, setUserID] = useState<string | null>(null);
   const [stories, setStories] = useState<any[]>([]);
   const [offset, setOffset] = useState(0);
   const limit = 30;
@@ -46,6 +46,13 @@ export default function FetchStories() {
     return null;
   }
   const { storyType } = storyTypeContext;
+
+  // Get userID from localStorage on component mount
+  useEffect(() => {
+    const id =
+      typeof window !== "undefined" ? localStorage.getItem("id") : null;
+    setUserID(id);
+  }, []);
 
   // Fetch favorites from the backend
   useEffect(() => {

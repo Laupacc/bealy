@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 
 export default function Users() {
-  const userID = localStorage.getItem("id");
+  const [userID, setUserID] = useState<string | null>(null);
   const favoritesRef = useRef<HTMLDivElement>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [userFavorites, setUserFavorites] = useState<any[]>([]);
@@ -28,6 +28,13 @@ export default function Users() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showComments, setShowComments] = useState(false);
   const [currentStoryId, setCurrentStoryId] = useState<number | null>(null);
+
+  // Get userID from localStorage on component mount
+  useEffect(() => {
+    const id =
+      typeof window !== "undefined" ? localStorage.getItem("id") : null;
+    setUserID(id);
+  }, []);
 
   // Fetch public user profiles from database
   useEffect(() => {

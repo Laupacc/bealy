@@ -1,11 +1,10 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import mysql from "mysql2/promise";
 import sequelize from "./models";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 const cookieParser = require("cookie-parser");
 import authRouter from "./routes/auth";
-import { authenticateJWT, refreshToken } from "./routes/auth";
 import favouritesRouter from "./routes/favorites";
 import hackernewsRouter from "./routes/hackernews";
 import "./models/associations";
@@ -18,14 +17,7 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
 const cors = require("cors");
-const allowedOrigins = [
-  "http://localhost:4000",
-  "http://localhost:3000",
-  "http://localhost:4001",
-  "http://localhost:8080",
-  "http://localhost:4002",
-  "http://localhost:3306",
-];
+const allowedOrigins = ["http://localhost:4000", "http://localhost:3000"];
 app.use(
   cors({
     origin: allowedOrigins,
@@ -76,5 +68,11 @@ createDatabase()
   .catch((err) => {
     console.error("Error during database creation:", err);
   });
+
+// Global error handler
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ error: "Internal Server Error" });
+});
 
 export default app;

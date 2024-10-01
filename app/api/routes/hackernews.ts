@@ -28,6 +28,7 @@ const fetchStories = async (req: Request, res: Response, endpoint: string) => {
 
     res.status(200).json(stories);
   } catch (error) {
+    console.error("Error fetching stories:", error);
     res.status(500).json({ error: "Failed to retrieve stories." });
   }
 };
@@ -83,6 +84,7 @@ router.get("/comments/:storyId", async (req: Request, res: Response) => {
     const comments = await Promise.all(commentPromises);
     res.status(200).json(comments);
   } catch (error) {
+    console.error("Error fetching comments:", error);
     res
       .status(500)
       .json({ error: "Failed to retrieve comments for the story." });
@@ -114,6 +116,7 @@ router.get("/kids/:commentId", async (req: Request, res: Response) => {
     const commentWithKids = await fetchCommentAndKids(Number(commentId));
     res.status(200).json(commentWithKids);
   } catch (error) {
+    console.error("Error fetching sub-comments:", error);
     res.status(500).json({ error: "Failed to retrieve sub-comments" });
   }
 });
@@ -129,6 +132,7 @@ router.get("/users/:userId", async (req: Request, res: Response) => {
     );
     res.status(200).json(user);
   } catch (error) {
+    console.error("Error fetching user profiles:", error);
     res.status(500).json({ error: "Failed to retrieve user profiles." });
   }
 });
@@ -142,6 +146,7 @@ router.get("/search", async (req: Request, res: Response) => {
     );
     res.status(200).json(data);
   } catch (error) {
+    console.error("Error searching:", error);
     res.status(500).json({ error: "Failed to search." });
   }
 });

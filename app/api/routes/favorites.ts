@@ -35,6 +35,7 @@ router.post(
       const newFavorite = await Favorite.create({ userId, storyId });
       res.status(201).json(newFavorite);
     } catch (error) {
+      console.error("Error adding story to favorites:", error);
       res.status(500).json({ error: "Failed to add story to favorites." });
     }
   }
@@ -62,6 +63,7 @@ router.get("/allFavorites/:userId", async (req: Request, res: Response) => {
 
     res.json(storyDetails);
   } catch (error) {
+    console.error("Error retrieving favorites:", error);
     res.status(500).json({ error: "Failed to retrieve favorites." });
   }
 });
@@ -95,6 +97,7 @@ router.delete(
       await favorite.destroy();
       res.status(200).json({ message: "Favorite removed successfully." });
     } catch (error) {
+      console.error("Error removing favorite:", error);
       res.status(500).json({ error: "Failed to remove favorite." });
     }
   }

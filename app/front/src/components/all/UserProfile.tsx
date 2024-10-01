@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -35,10 +35,8 @@ export default function UserProfile({
   setUserInfo,
   children,
 }: UserProfileProps) {
-  const userID = localStorage.getItem("id");
-
   const router = useRouter();
-
+  const [userID, setUserID] = useState<string | null>(null);
   const [editProfile, setEditProfile] = useState(false);
   const [formData, setFormData] = useState({
     firstName: userInfo?.firstName,
@@ -48,6 +46,13 @@ export default function UserProfile({
     description: userInfo?.description,
     profilePicture: userInfo?.profilePicture,
   });
+
+  // Get userID from localStorage on component mount
+  useEffect(() => {
+    const id =
+      typeof window !== "undefined" ? localStorage.getItem("id") : null;
+    setUserID(id);
+  }, []);
 
   // Handle form input changes
   const handleChange = (

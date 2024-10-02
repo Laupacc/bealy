@@ -1,7 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import { authenticateJWT, refreshToken } from "./auth";
-const axios = require("axios");
-const express = require("express");
+import axios from "axios";
 const router = express.Router();
 
 import User from "../models/User";

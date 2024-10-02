@@ -1,12 +1,11 @@
-import { Request, Response, NextFunction } from "express";
-const express = require("express");
+import express, { Request, Response, NextFunction } from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 const router = express.Router();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 
 import User from "../models/User";
 
-const JWT = process.env.JWT_SECRET;
+const JWT = process.env.JWT_SECRET as string;
 
 // Middleware to authenticate JWT token
 export const authenticateJWT = (
@@ -43,9 +42,9 @@ export const refreshToken = (req: any, res: Response, next: NextFunction) => {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT);
+    const decoded = jwt.verify(token, JWT) as jwt.JwtPayload;
     const currentTime = Math.floor(Date.now() / 1000);
-    const timeToExpire = decoded.exp - currentTime;
+    const timeToExpire = decoded.exp! - currentTime;
 
     // Check if the token is about to expire in the next 10 minutes (600 seconds)
     if (timeToExpire < 600) {

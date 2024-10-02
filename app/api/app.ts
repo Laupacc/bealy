@@ -1,9 +1,10 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import mysql from "mysql2/promise";
 import sequelize from "./models";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-const cookieParser = require("cookie-parser");
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import authRouter from "./routes/auth";
 import favouritesRouter from "./routes/favorites";
 import hackernewsRouter from "./routes/hackernews";
@@ -16,7 +17,6 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
-const cors = require("cors");
 const allowedOrigins = ["http://localhost:4000", "http://localhost:3000"];
 app.use(
   cors({
@@ -31,6 +31,7 @@ app.use("/auth", authRouter);
 app.use("/favorites", favouritesRouter);
 app.use("/hackernews", hackernewsRouter);
 
+// Function to create the database
 const createDatabase = async (): Promise<void> => {
   try {
     const connection = await mysql.createConnection({
@@ -42,37 +43,43 @@ const createDatabase = async (): Promise<void> => {
     const dbName = process.env.DB_NAME || "BEALY_TT_DB";
     await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`);
     console.log(`Database '${dbName}' created or already exists.`);
+    await connection.end(); // Close the connection
   } catch (error) {
     console.error("Error creating database:", error);
+    throw error;
   }
 };
 
-createDatabase()
-  .then(() => {
+// Function to start the server
+const startServer = async (): Promise<void> => {
+  try {
+    await sequelize.sync();
+    app.listen(8080, () => {
+      console.log("Server is running on port 8080");
+    });
+  } catch (error) {
+    console.error("Error syncing Sequelize models:", error);
+    process.exit(1); // Exit the process with failure
+  }
+};
+
+// Main function to run the application
+const main = async (): Promise<void> => {
+  try {
+    await createDatabase(); // Ensure the database is created
     app.use(express.json());
+
     app.get("/", (request: Request, response: Response) => {
       return response.status(200).send({ message: "API is reachable" });
     });
 
-    sequelize
-      .sync()
-      .then(() => {
-        app.listen(8080, () => {
-          console.log("Server is running on port 8080");
-        });
-      })
-      .catch((err: any) => {
-        console.error("Error syncing Sequelize models:", err);
-      });
-  })
-  .catch((err) => {
-    console.error("Error during database creation:", err);
-  });
+    await startServer(); // Start the server after the database has been created
+  } catch (error) {
+    console.error("Error during application startup:", error);
+  }
+};
 
-// Global error handler
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error("Unhandled error:", err);
-  res.status(500).json({ error: "Internal Server Error" });
-});
+// Execute the main function
+main();
 
 export default app;

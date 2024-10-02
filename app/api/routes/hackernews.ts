@@ -1,6 +1,5 @@
-import { Request, Response } from "express";
-const express = require("express");
-const axios = require("axios");
+import express, { Request, Response } from "express";
+import axios from "axios";
 const router = express.Router();
 
 // Fetch HackerNews top stories

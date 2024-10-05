@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Switch } from "@/components/ui/switch";
@@ -48,11 +49,12 @@ export default function UserProfile({
     profilePicture: userInfo?.profilePicture,
   });
 
-  // Get userID from localStorage on component mount
+  // Get userID from cookies on component mount
   useEffect(() => {
-    const id =
-      typeof window !== "undefined" ? localStorage.getItem("id") : null;
-    setUserID(id);
+    const id = Cookies.get("userId");
+    if (id) {
+      setUserID(id);
+    }
   }, []);
 
   // Handle form input changes
@@ -75,11 +77,12 @@ export default function UserProfile({
       }
       console.log("Profile visibility updated:", updatedVisibility);
 
-      await api.put(`/auth/${userID}/userInfo`, {
+      await api.put(`/users/${userID}/userInfo`, {
         showProfile: updatedVisibility,
       });
     } catch (error) {
       console.error("Error updating profile visibility:", error);
+      toast.error("Connection error while updating profile visibility");
     }
   };
 
@@ -104,7 +107,7 @@ export default function UserProfile({
 
     try {
       // Update user profile
-      await api.put(`/auth/${userID}/userInfo`, filteredFields);
+      await api.put(`/users/${userID}/userInfo`, filteredFields);
 
       // Update local state
       if (userInfo) {
@@ -112,6 +115,7 @@ export default function UserProfile({
       }
     } catch (error) {
       console.error("Error updating user profile:", error);
+      toast.error("Connection error while updating user profile");
     }
   };
 
@@ -124,7 +128,7 @@ export default function UserProfile({
     const newProfilePictureUrl = `https://picsum.photos/id/${randomIndex}/200/200`;
 
     try {
-      await api.put(`/auth/${userID}/userInfo`, {
+      await api.put(`/users/${userID}/userInfo`, {
         profilePicture: newProfilePictureUrl,
       });
 
@@ -144,12 +148,13 @@ export default function UserProfile({
       );
     } catch (error) {
       console.error("Error saving randomized profile picture:", error);
+      toast.error("Connection error while saving randomized profile picture");
     }
   };
 
   const handleLogout = async () => {
     try {
-      await api.post(`/auth/logout`);
+      await api.post(`/users/logout`);
       localStorage.removeItem("id");
       localStorage.removeItem("randomColor");
       Cookies.remove("token");
@@ -157,6 +162,7 @@ export default function UserProfile({
       router.refresh();
     } catch (error) {
       console.error("Error during logout:", error);
+      toast.error("Connection error while logging out");
     }
   };
 

@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import authRouter from "./routes/auth";
+import usersRouter from "./routes/users";
 import favouritesRouter from "./routes/favorites";
 import hackernewsRouter from "./routes/hackernews";
 import "./models/associations";
@@ -27,7 +27,7 @@ app.use(
   })
 );
 
-app.use("/auth", authRouter);
+app.use("/users", usersRouter);
 app.use("/favorites", favouritesRouter);
 app.use("/hackernews", hackernewsRouter);
 

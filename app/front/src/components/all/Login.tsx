@@ -31,9 +31,9 @@ export default function LoginForm() {
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      const response = await api.post(`/auth/login`, data);
+      const response = await api.post(`/users/login`, data);
 
-      localStorage.setItem("id", response.data.id);
+      // localStorage.setItem("id", response.data.id);
 
       router.push(`/main`);
       console.log("User logged in:", response.data);

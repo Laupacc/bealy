@@ -5,9 +5,11 @@ import Comments from "../all/Comments";
 import OtherUsersProfilesModal from "../all/OtherUsersProfilesModal";
 import Link from "next/link";
 import Image from "next/image";
+import Cookies from "js-cookie";
 import moment from "moment";
 import DOMPurify from "dompurify";
 import he from "he";
+import { toast } from "react-toastify";
 import { ProgressBar } from "react-loader-spinner";
 import { TbTriangleFilled } from "react-icons/tb";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -30,11 +32,13 @@ export default function FavoriteStories() {
   const [currentAskStoryId, setCurrentAskStoryId] = useState<number | null>(
     null
   );
-  // Get userID from localStorage on component mount
+
+  // Get userID from cookies on component mount
   useEffect(() => {
-    const id =
-      typeof window !== "undefined" ? localStorage.getItem("id") : null;
-    setUserID(id);
+    const id = Cookies.get("userId");
+    if (id) {
+      setUserID(id);
+    }
   }, []);
 
   // Fetch logged in user's favorites
@@ -55,6 +59,7 @@ export default function FavoriteStories() {
         console.log("Favorites:", response.data);
       } catch (error) {
         console.log("Error fetching favorites or user not logged in", error);
+        toast.error("Connection error while fetching favorites");
         setFavorites([]);
         setLoading(false);
       }
@@ -80,6 +85,7 @@ export default function FavoriteStories() {
       console.log("Response from deleting story from favorites:", response);
     } catch (error) {
       console.error("Error deleting story from favorites:", error);
+      toast.error("Connection error while deleting story from favorites");
     }
   };
 

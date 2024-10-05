@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "react-toastify";
 import { registrationSchema } from "@/schemas/registrationSchema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,10 +33,11 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: z.infer<typeof registrationSchema>) => {
     try {
-      const response = await api.post(`/auth/register`, data);
+      const response = await api.post(`/users/register`, data);
 
-      localStorage.setItem("id", response.data.id);
-      alert("Registered successfully!");
+      // localStorage.setItem("id", response.data.id);
+
+      toast.success("Registered successfully!");
 
       router.push(`/main`);
       console.log("User created:", response.data);

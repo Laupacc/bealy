@@ -7,9 +7,11 @@ import SearchResults from "../all/SearchResults";
 import OtherUsersProfilesModal from "../all/OtherUsersProfilesModal";
 import Link from "next/link";
 import Image from "next/image";
+import Cookies from "js-cookie";
 import moment from "moment";
 import DOMPurify from "dompurify";
 import he from "he";
+import { toast } from "react-toastify";
 import { TbTriangleFilled } from "react-icons/tb";
 import { ProgressBar } from "react-loader-spinner";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -47,11 +49,13 @@ export default function FetchStories() {
   }
   const { storyType } = storyTypeContext;
 
-  // Get userID from localStorage on component mount
+  // Get userID from cookies on component mount
   useEffect(() => {
-    const id =
-      typeof window !== "undefined" ? localStorage.getItem("id") : null;
-    setUserID(id);
+    const id = Cookies.get("userId");
+    console.log("id from Cookies", id);
+    if (id) {
+      setUserID(id);
+    }
   }, []);
 
   // Fetch favorites from the backend
@@ -67,6 +71,7 @@ export default function FetchStories() {
             "Error fetching user favorites, or user not logged in",
             error
           );
+          toast.error("Connection error while fetching user favorites");
         }
       }
     };
@@ -96,6 +101,7 @@ export default function FetchStories() {
       console.log(`${storyType} stories:`, stories);
     } catch (error) {
       console.error(`Error fetching ${storyType} stories:`, error);
+      toast.error("Connection error while fetching stories");
       setLoading(false);
     }
   };
@@ -156,6 +162,7 @@ export default function FetchStories() {
       }
     } catch (error) {
       console.error("Error adding story to favorites:", error);
+      toast.error("Connection error while adding story to favorites");
     }
   };
 
@@ -184,6 +191,7 @@ export default function FetchStories() {
       }
     } catch (error) {
       console.error("Error removing story from favorites:", error);
+      toast.error("Connection error while removing story from favorites");
     }
   };
 
@@ -217,6 +225,7 @@ export default function FetchStories() {
       console.log("Searched Stories:", response.data);
     } catch (error) {
       console.error("Error searching HackerNews stories:", error);
+      toast.error("Connection error while searching HackerNews stories");
     }
   };
 

@@ -3,6 +3,8 @@ import React, { useState, useEffect, useContext } from "react";
 import api from "../../services/api";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 import { StoryTypeContext } from "../../../src/context/StoryTypeContext";
 import { useSelectedButton } from "../../../src/context/SelectedButtonContextType";
 import UserProfile from "../../components/all/UserProfile";
@@ -56,11 +58,12 @@ export default function MenuBar() {
   }
   const { setStoryType } = storyTypeContext;
 
-  // Get userID from localStorage on component mount
+  // Get userID from cookies on component mount
   useEffect(() => {
-    const id =
-      typeof window !== "undefined" ? localStorage.getItem("id") : null;
-    setUserID(id);
+    const id = Cookies.get("userId");
+    if (id) {
+      setUserID(id);
+    }
   }, []);
 
   const storyButtons = [
@@ -117,12 +120,13 @@ export default function MenuBar() {
       }
 
       try {
-        const response = await api.get(`/auth/${userID}/userInfo`);
+        const response = await api.get(`/users/${userID}/userInfo`);
 
         setUserInfo(response.data);
         console.log("User info:", response.data);
       } catch (error) {
         console.error("Error fetching user info:", error);
+        toast.error("Connection error while fetching user info");
         setUserInfo(null);
       }
     };

@@ -4,6 +4,8 @@ import api from "../../services/api";
 import Comments from "@/components/all/Comments";
 import Link from "next/link";
 import Image from "next/image";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
 import { ProgressBar } from "react-loader-spinner";
@@ -31,21 +33,23 @@ export default function Users() {
   const [currentStoryId, setCurrentStoryId] = useState<number | null>(null);
   const [isExpanded, setIsExpanded] = useState<{ [key: number]: boolean }>({});
 
-  // Get userID from localStorage on component mount
+  // Get userID from cookies on component mount
   useEffect(() => {
-    const id =
-      typeof window !== "undefined" ? localStorage.getItem("id") : null;
-    setUserID(id);
+    const id = Cookies.get("userId");
+    if (id) {
+      setUserID(id);
+    }
   }, []);
 
   // Fetch public user profiles from database
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await api.get("/auth/allUsersPublicProfiles");
+        const response = await api.get("/users/allUsersPublicProfiles");
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching users:", error);
+        toast.error("Connection error while fetching users");
         setUsers([]);
       } finally {
         setLoading(false);
@@ -75,6 +79,7 @@ export default function Users() {
       console.log("User's Favorites:", response.data);
     } catch (error) {
       console.error("Error fetching favorites:", error);
+      toast.error("Connection error while fetching favorites");
       setUserFavorites([]);
     } finally {
       setFavoritesLoading(false);

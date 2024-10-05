@@ -5,6 +5,7 @@ import OtherUsersProfilesModal from "../all/OtherUsersProfilesModal";
 import moment from "moment";
 import DOMPurify from "dompurify";
 import he from "he";
+import { toast } from "react-toastify";
 import { Comment as LoadingComment } from "react-loader-spinner";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,6 +63,9 @@ export default function Comments({ storyId, open, onClose }: CommentsProps) {
         setComments(commentsWithKids);
       } catch (error) {
         console.error("Error fetching comments:", error);
+        toast.error(
+          "Connection error while fetching comments, please try again later"
+        );
       } finally {
         setLoadingComments(false);
       }

@@ -3,6 +3,7 @@ import api from "../../services/api";
 import moment from "moment";
 import DOMPurify from "dompurify";
 import he from "he";
+import { toast } from "react-toastify";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ export default function OtherUsersProfilesModal({
         setPublicUserProfile(response.data);
       } catch (error) {
         console.error("Error fetching public user info:", error);
+        toast.error("Connection error while fetching public user info");
       }
     };
 
